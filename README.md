@@ -38,12 +38,12 @@ Det är allt. Ingen nerladdning, ingen GPU, inget internet krävs.
 
 ## Roller i teamet
 
-| Roll | Ansvar |
-|------|--------|
-| **Data** | Förstår och utvidgar datasetet, dokumenterar features, ansvarar för train/test-uppdelning |
-| **Modell** | Trimmar hyperparametrar, jämför algoritmer, skriver ut och tolkar mätvärden |
-| **Attack och säkerhet** | Kör `attack.py`, utforskar nya angreppsstrategier, skriver SECURITY.md |
-| **Presentation** | Samordnar demon, gör slides eller live-demo, dokumenterar slutresultat |
+| Roll | Person | Ansvar |
+|------|--------|--------|
+| **Data** | Sebastian (F-chas) | Förstår och utvidgar datasetet, dokumenterar features, ansvarar för train/test-uppdelning |
+| **Modell** | Liam (liam-baltze), Mert (MA-chas) | Trimmar hyperparametrar, jämför algoritmer, skriver ut och tolkar mätvärden |
+| **Attack och säkerhet** | André (andreedvardsson) | Kör `attack.py`, utforskar nya angreppsstrategier, skriver SECURITY.md |
+| **Presentation** | Abdulghani (abbe-max) | Samordnar demon, gör slides eller live-demo, dokumenterar slutresultat |
 
 Rollerna är ett startläge, inte en låst struktur. Hjälp varandra.
 
