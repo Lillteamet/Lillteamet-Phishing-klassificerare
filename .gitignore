@@ -3,4 +3,3 @@ __pycache__/
 *.joblib
 *.pyc
 .DS_Store
-CHANGELOG.txt

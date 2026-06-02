@@ -1,0 +1,25 @@
+CHANGELOG
+=========
+
+Version: 2026-06-02
+Summary: Added a phishing scanning agent, dataset loader support for local CSV/JSON/TSV datasets, and updated training pipeline and documentation.
+
+Added:
+- `agent.py`: new phishing email scanning agent that loads the trained classifier and reports matched phishing signatures, confidence, and assumptions.
+- Support for local dataset ingestion in `train.py` using `--dataset-paths`.
+- Real dataset loader logic in `generate_data.py` for CSV/TSV/JSON formats and common email dataset schemas.
+- `Datasets` folder support for recursive loading of dataset files.
+- README documentation for training with local dataset files and using the new agent.
+
+Changed:
+- `train.py`: now accepts CLI arguments `--dataset-paths`, `--model-path`, and `--test-size`; falls back to synthetic data when local datasets are not provided.
+- `generate_data.py`: extended to detect multiple text and label column names, normalize label values, and skip unsupported files when scanning directories.
+- `README.md`: updated with precise usage examples for dataset-driven training and agent scanning.
+
+Removed:
+- None.
+
+Notes:
+- Existing synthetic data generator remains intact for reproducible classroom demos.
+- Use `python train.py --dataset-paths Datasets` to train on the newly added datasets folder.
+- Use `python agent.py --text "<email text>"` or `python agent.py --email-file sample_email.txt` to scan emails.
