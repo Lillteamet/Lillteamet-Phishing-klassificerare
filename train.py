@@ -9,6 +9,7 @@ Run:
     python train.py
 """
 
+import argparse
 import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, precision_recall_fscore_support
@@ -21,6 +22,28 @@ from generate_data import generate_dataset
 MODEL_PATH = "phishing_model.joblib"
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Train a phishing email classifier.")
+    parser.add_argument(
+        "--dataset-paths",
+        nargs="+",
+        default=None,
+        help="Optional local dataset file paths or directories to use instead of synthetic data.",
+    )
+    parser.add_argument(
+        "--model-path",
+        default=MODEL_PATH,
+        help="Output path for the saved trained model.",
+    )
+    parser.add_argument(
+        "--test-size",
+        type=float,
+        default=TEST_SIZE,
+        help="Fraction of data reserved for evaluation.",
+    )
+    return parser.parse_args()
 
 
 def build_pipeline() -> Pipeline:
@@ -52,13 +75,22 @@ def print_metrics(y_true, y_pred) -> None:
 
 
 def main():
+    args = parse_args()
+
     print("Loading dataset...")
-    df = generate_dataset()
+    if args.dataset_paths:
+        print(f"Using dataset paths: {args.dataset_paths}")
+
+    df = generate_dataset(dataset_paths=args.dataset_paths)
     X = df["text"].tolist()
     y = df["label"].tolist()
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y
+        X,
+        y,
+        test_size=args.test_size,
+        random_state=RANDOM_STATE,
+        stratify=y,
     )
     print(f"Train: {len(X_train)} samples, Test: {len(X_test)} samples\n")
 
@@ -70,8 +102,8 @@ def main():
     y_pred = pipeline.predict(X_test)
     print_metrics(y_test, y_pred)
 
-    joblib.dump(pipeline, MODEL_PATH)
-    print(f"Model saved to: {MODEL_PATH}")
+    joblib.dump(pipeline, args.model_path)
+    print(f"Model saved to: {args.model_path}")
 
 
 if __name__ == "__main__":

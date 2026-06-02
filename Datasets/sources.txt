@@ -1,0 +1,13 @@
+Käller till datasets som används för träningen.
+
+File: Phishing_validation_emails.csv
+URL: https://research.utwente.nl/en/datasets/phishing-validation-emails-dataset/
+
+Folder: Phishing Email Dataset
+URL: https://www.kaggle.com/datasets/naserabdullahalam/phishing-email-dataset
+
+Folder: Phishing and Legitimate Emails Dataset for ML 2026
+URL: https://www.kaggle.com/datasets/kuladeep19/phishing-and-legitimate-emails-dataset
+
+Folder: phishing-dataset
+Repo: https://huggingface.co/datasets/ealvaradob/phishing-dataset

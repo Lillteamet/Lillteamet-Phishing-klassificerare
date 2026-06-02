@@ -78,7 +78,46 @@ När ni är nöjda med er grundmodell kan ni prova med riktig phishing-data:
 - **PhishTank**: öppen databas med verifierade phishing-URL:er (phishtank.org)
 - **Kaggle "phishing email"**: sök på Kaggle efter "phishing email dataset" för CSV-filer redo att använda
 
+Det finns nu stöd för att läsa in lokala datasetfiler direkt i `train.py`.
+Spara datasetet i CSV/TSV/JSON-format och träna med:
+
+```bash
+python train.py --dataset-paths Datasets
+```
+
+eller med individuella filer:
+
+```bash
+python train.py --dataset-paths Datasets/Phishing_validation_emails.csv Datasets/Phishing\ and\ Legitimate\ Emails\ Dataset\ for\ ML\ 2026/phishing_legit_dataset_KD_10000.csv
+```
+
+Funktionen stöder både kolumner som `text`, `message`, `email`, `content`, `body`, `email text` och `email type`, eller kombinationen `subject` + `body`.
+Etiketten kan vara `label`, `class`, `target`, `phishing`, `is_phishing`, `spam` eller `category` med vanliga värden som `0/1`, `ham/phishing` eller `legitimate/spam`.
+
 Ersätt `generate_dataset()` i `train.py` med en funktion som läser in en riktig CSV så är ni klara.
+
+## AI-agent för e-postskanning
+
+Det finns även en ny agent i `agent.py` som laddar den tränade modellen och skannar en e-posttext för kända phishing-signaturer.
+Den skriver ut:
+
+- Modellens prediktion och sannolikhet
+- Upptäckta misstänkta mönster och fraser
+- En kort slutsats om varför e-posten kan vara phishing
+
+Exempel:
+
+```bash
+python agent.py --text "Subject: Verify your account now\n\nClick here to update your billing information."
+```
+
+eller
+
+```bash
+python agent.py --email-file sample_email.txt
+```
+
+Agenten hjälper er att visa hur både ML-signaler och enkla regelbaserade signaturer kan användas för phishingdetektion.
 
 ---
 
