@@ -118,3 +118,25 @@ Per-role next steps
 	- Request the current `phishing_model.joblib` from the model team.
 	- Run `./scripts/validate.sh` or `python scripts/validate_pipeline.py --output validation_report.txt` to verify the pipeline completes successfully before proceeding with `attack.py`.
 	- Use the validation report as the baseline for evasion testing.
+Version: 2026-06-03 (retrained)
+Summary: Reran training after the latest data update, refreshed the model artifact, and confirmed the saved `phishing_model.joblib` metrics.
+
+What was added
+- Confirmed the updated dataset still produces a valid training split with 141,577 training samples and 35,395 test samples.
+- Recorded a fresh training run with the current data and saved the new pipeline to `phishing_model.joblib`.
+
+What was changed
+- `phishing_model.joblib` was overwritten with a newly trained model after the latest dataset update.
+
+Final metrics
+- Training samples: 141,577
+- Test samples: 35,395
+- Accuracy: 0.9831
+- Precision: 0.9807
+- Recall: 0.9872
+- F1: 0.9839
+- Model saved to: `phishing_model.joblib`
+
+Notes
+- The current dataset update did not require any code changes; the existing loader and training pipeline worked correctly.
+- The latest model artifact is now aligned with the updated data.
