@@ -2,24 +2,61 @@ CHANGELOG
 =========
 
 Version: 2026-06-02
-Summary: Added a phishing scanning agent, dataset loader support for local CSV/JSON/TSV datasets, and updated training pipeline and documentation.
+Summary: Implemented dataset ingestion, a scanning agent, training CLI options, dataset folder support, and team workflow guidance.
 
-Added:
-- `agent.py`: new phishing email scanning agent that loads the trained classifier and reports matched phishing signatures, confidence, and assumptions.
-- Support for local dataset ingestion in `train.py` using `--dataset-paths`.
-- Real dataset loader logic in `generate_data.py` for CSV/TSV/JSON formats and common email dataset schemas.
-- `Datasets` folder support for recursive loading of dataset files.
-- README documentation for training with local dataset files and using the new agent.
+What was added
+- `agent.py` — Phishing scanning agent: loads the trained model, flags signature patterns, prints prediction + confidence, and provides short assumptions for analysts.
+- Dataset ingestion support in `generate_data.py` — loads CSV/TSV/JSON files, detects common text/label schemas (including `Email Text` / `Email Type`), and can recursively load `Datasets/`.
+- `train.py` CLI options — `--dataset-paths`, `--model-path`, `--test-size` (falls back to synthetic generator when no paths are given).
+- `sample_email.txt` — example email for quick `agent.py` testing.
+- `CHANGELOG.txt` (this file) — now includes per-role next steps for team coordination.
 
-Changed:
-- `train.py`: now accepts CLI arguments `--dataset-paths`, `--model-path`, and `--test-size`; falls back to synthetic data when local datasets are not provided.
-- `generate_data.py`: extended to detect multiple text and label column names, normalize label values, and skip unsupported files when scanning directories.
-- `README.md`: updated with precise usage examples for dataset-driven training and agent scanning.
+What was changed
+- `generate_data.py`: added robust parsing, label normalization, and graceful skipping of unsupported files when scanning directories.
+- `train.py`: now accepts dataset paths and saves models to a configurable path.
+- `README.md`: instructions for training with `Datasets/` and using `agent.py` were added.
 
-Removed:
-- None.
+Files touched
+- Added: `agent.py`, `sample_email.txt`, `CHANGELOG.txt`
+- Updated: `generate_data.py`, `train.py`, `README.md`
 
-Notes:
-- Existing synthetic data generator remains intact for reproducible classroom demos.
-- Use `python train.py --dataset-paths Datasets` to train on the newly added datasets folder.
-- Use `python agent.py --text "<email text>"` or `python agent.py --email-file sample_email.txt` to scan emails.
+Per-role next steps (concise)
+- Data (Sebastian / F-chas):
+	- You have trained the model locally. Keep the trained artifact `phishing_model.joblib` locally and share with others via a Release or shared storage.
+	- Verify dataset parsing for files under `Datasets/` and report any files that were skipped (warnings are emitted).
+	- If needed, prepare a cleaned CSV with `subject` + `body` or a `text,label` layout and place it under `Datasets/`.
+
+- Modell (Liam, Mert):
+	- Retrain locally with `python train.py --dataset-paths Datasets` or tweak hyperparameters in `train.py`.
+	- Run evaluation and report metrics (accuracy, precision, recall, F1) to the team.
+	- Optionally export and share a model artifact using the project's chosen distribution method.
+
+- Attack och Säkerhet (André):
+	- To run attacks and scans without retraining, request the `phishing_model.joblib` from Data (Sebastian).
+	- Run `python agent.py --email-file sample_email.txt` to test the scanner and `python attack.py` to run the evasion demo.
+
+- Presentation (Abdulghani):
+	- Use `agent.py` and the sample email to prepare a short demo. If needed, request the model artifact from Data.
+
+Model distribution guidance
+- Do NOT commit `phishing_model.joblib` into Git (it is ignored via `*.joblib` in `.gitignore`).
+- Recommended sharing options:
+	1) GitHub Release or shared cloud storage (preferred): upload `phishing_model.joblib` and add a download link + checksum in `README.md`.
+	2) Git LFS (alternative): track `phishing_model.joblib` with Git LFS and commit `.gitattributes` (team must install Git LFS).
+
+Quick commands
+```
+python train.py --dataset-paths Datasets
+python agent.py --text "Subject: Verify your account now\n\nClick here to update your billing information."
+python agent.py --email-file sample_email.txt
+python attack.py
+```
+
+Recommended immediate tasks
+1) Sebastian (Data): confirm the `Datasets/` folder loads cleanly and share the trained `phishing_model.joblib` via Release or shared link.
+2) Liam & Mert (Model): retrain or validate the model locally and report metrics.
+3) André (Attack): request the artifact and run `attack.py` to validate evasion scenarios.
+
+Contact / notes
+- If model files are large, prefer Release or cloud hosting. If the team prefers Git LFS, I can add a `.gitattributes` snippet and README instructions.
+

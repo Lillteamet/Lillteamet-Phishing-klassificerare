@@ -44,7 +44,7 @@ SIGNATURE_PATTERNS = [
     (r"receive your item", "delivery scam phrasing"),
 ]
 
-URL_PATTERN = re.compile(r"https?://[^"]+", flags=re.IGNORECASE)
+URL_PATTERN = re.compile(r'https?://[^\s"\']+', flags=re.IGNORECASE)
 GENERIC_PHISHING_PATTERNS = [
     (re.compile(r"dear\s+customer", re.IGNORECASE), "generic greeting often used by phishing emails"),
     (re.compile(r"suspended|terminated|closed|limited time|expire|expired", re.IGNORECASE), "threat or expiry language"),
