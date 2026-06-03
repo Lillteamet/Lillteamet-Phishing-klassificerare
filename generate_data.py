@@ -27,6 +27,7 @@ TEXT_COLUMNS = [
     "email_text",
     "message text",
     "message_text",
+    "text_combined",
 ]
 LABEL_COLUMNS = [
     "label",

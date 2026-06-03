@@ -60,3 +60,39 @@ Recommended immediate tasks
 Contact / notes
 - If model files are large, prefer Release or cloud hosting. If the team prefers Git LFS, I can add a `.gitattributes` snippet and README instructions.
 
+
+Version: 2026-06-03
+Summary: Completed model retraining and validation on full dataset. Installed Git LFS, downloaded large files, expanded column support, and achieved optimal metrics on 141,577 samples.
+
+What was added
+- Local training run using `python train.py --dataset-paths Datasets` with full dataset support.
+- Git LFS support: installed and ran `git lfs pull` to download actual CSV files.
+- Added `text_combined` to supported text columns in `generate_data.py` to include `phishing_email.csv`.
+- Comprehensive evaluation results with accuracy, precision, recall, and F1 on the full dataset.
+
+What was changed
+- `generate_data.py`: added `"text_combined"` to `TEXT_COLUMNS` list so Datasets/Phishing Email Dataset/phishing_email.csv could be used for the tests.
+
+Training progression
+- Initial training (without Git LFS): 44,265 samples, Accuracy 0.9856, F1 0.9858
+- After Git LFS pull: 75,588 samples, Accuracy 0.9824, F1 0.9834
+- Final training (with text_combined support): 141,577 samples, Accuracy 0.9831, F1 0.9839 (3.2x increase from start)
+
+Final metrics (on full dataset)
+- Training samples: 141,577
+- Test samples: 35,395
+- Accuracy: 0.9831
+- Precision: 0.9807
+- Recall: 0.9872
+- F1: 0.9839
+- Model saved to: `phishing_model.joblib`
+
+Notes
+- Git LFS pointers were automatically resolved after `git lfs pull`.
+- All dataset files now load cleanly; no unsupported files remain.
+- The expanded model is ready for sharing and testing.
+
+Next steps
+- Share the trained `phishing_model.joblib` with the team via GitHub Release or cloud storage.
+- Sebastian (Data) can verify the dataset parsing quality and report any remaining data issues.
+- André (Attack) can now request the artifact and run evasion experiments.
