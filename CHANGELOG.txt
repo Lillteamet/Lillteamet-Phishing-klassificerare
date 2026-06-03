@@ -62,35 +62,43 @@ Contact / notes
 
 
 Version: 2026-06-03
-Summary: Completed model retraining and validation on full dataset. Installed Git LFS, downloaded large files, expanded column support, and achieved optimal metrics on 141,577 samples.
+Summary: Finalized expanded dataset retraining and validation, resolved Git LFS dataset issues, and consolidated changelog entries into a single update.
 
 What was added
-- Local training run using `python train.py --dataset-paths Datasets` with full dataset support.
-- Git LFS support: installed and ran `git lfs pull` to download actual CSV files.
-- Added `text_combined` to supported text columns in `generate_data.py` to include `phishing_email.csv`.
-- Comprehensive evaluation results with accuracy, precision, recall, and F1 on the full dataset.
+- Git LFS support and `git lfs pull` to fetch actual CSV data for `Datasets/Phishing Email Dataset`.
+- `text_combined` support in `generate_data.py` so `phishing_email.csv` can be parsed.
+- End-to-end validation workflow via `scripts/validate_pipeline.py`, `scripts/validate.sh`, and `validation_report.txt`.
+- Verified model artifact loading, `agent.py` scan behavior, and attack demo baseline.
 
 What was changed
-- `generate_data.py`: added `"text_combined"` to `TEXT_COLUMNS` list so Datasets/Phishing Email Dataset/phishing_email.csv could be used for the tests.
+- `generate_data.py`: added `"text_combined"` to `TEXT_COLUMNS`.
+- `train.py`: clarified that `Datasets` is scanned recursively, so nested sources under `Datasets` should not be passed again as separate paths.
+- `CHANGELOG.txt`: merged multiple intermediate updates into one consolidated release note.
+
+Difficulties encountered
+- Git LFS pointer files hid actual CSV data until `git lfs pull` was run, so dataset ingestion initially skipped large files.
+- `phishing_email.csv` used a nonstandard `text_combined` field, requiring loader extension.
+- Passing both `Datasets` and nested `Datasets/phising-dataset` duplicated dataset rows; the correct recursive path is `Datasets` alone.
+- The expanded dataset includes JSON list files and required careful loader validation.
+
+Data difference
+- Original baseline snapshot: ~176,972 rows from the smaller dataset.
+- Expanded dataset loaded recursively from `Datasets`: 1,032,806 rows.
+- The current dataset is roughly 6x larger than the earlier baseline, giving the model much broader phishing and ham content.
 
 Training progression
-- Initial training (without Git LFS): 44,265 samples, Accuracy 0.9856, F1 0.9858
-- After Git LFS pull: 75,588 samples, Accuracy 0.9824, F1 0.9834
-- Final training (with text_combined support): 141,577 samples, Accuracy 0.9831, F1 0.9839 (3.2x increase from start)
+- Baseline training on the original smaller dataset: 141,577 samples, Accuracy 0.9831, F1 0.9839.
+- Expanded training on `Datasets` with recursive ingestion: total dataset rows 1,032,806, Train: 826,244, Test: 206,562.
+- Final metrics: Accuracy 0.8885, Precision 0.9207, Recall 0.8378, F1 0.8773.
 
-Final metrics (on full dataset)
-- Training samples: 141,577
-- Test samples: 35,395
-- Accuracy: 0.9831
-- Precision: 0.9807
-- Recall: 0.9872
-- F1: 0.9839
-- Model saved to: `phishing_model.joblib`
+Validation result
+- `./scripts/validate.sh` completed successfully and wrote `validation_report.txt`.
+- `python scripts/validate_pipeline.py --dataset-paths Datasets --output validation_report.txt` confirmed the artifact loads, the agent scan works, and the attack demo failed to flip the current model.
+- Avoid passing `Datasets` and nested `Datasets/phising-dataset` together unless deduplication is added.
 
 Notes
-- Git LFS pointers were automatically resolved after `git lfs pull`.
-- All dataset files now load cleanly; no unsupported files remain.
-- The expanded model is ready for sharing and testing.
+- The larger dataset improved coverage and reduced inflated metrics from the smaller baseline.
+- The attack demo failure is a useful baseline for future evasion testing.
 
 Next steps
 - Share the trained `phishing_model.joblib` with the team via GitHub Release or cloud storage.
@@ -118,25 +126,3 @@ Per-role next steps
 	- Request the current `phishing_model.joblib` from the model team.
 	- Run `./scripts/validate.sh` or `python scripts/validate_pipeline.py --output validation_report.txt` to verify the pipeline completes successfully before proceeding with `attack.py`.
 	- Use the validation report as the baseline for evasion testing.
-Version: 2026-06-03 (retrained)
-Summary: Reran training after the latest data update, refreshed the model artifact, and confirmed the saved `phishing_model.joblib` metrics.
-
-What was added
-- Confirmed the updated dataset still produces a valid training split with 141,577 training samples and 35,395 test samples.
-- Recorded a fresh training run with the current data and saved the new pipeline to `phishing_model.joblib`.
-
-What was changed
-- `phishing_model.joblib` was overwritten with a newly trained model after the latest dataset update.
-
-Final metrics
-- Training samples: 141,577
-- Test samples: 35,395
-- Accuracy: 0.9831
-- Precision: 0.9807
-- Recall: 0.9872
-- F1: 0.9839
-- Model saved to: `phishing_model.joblib`
-
-Notes
-- The current dataset update did not require any code changes; the existing loader and training pipeline worked correctly.
-- The latest model artifact is now aligned with the updated data.

@@ -1,0 +1,106 @@
+Validation report generated: 2026-06-03T11:18:47.533989+00:00
+Repository root: /home/LiamBaltze/Lillteamet-Phishing/Lillteamet-Phishing-klassificerare
+
+=== Train model ===
+Command: train.py --dataset-paths Datasets
+Return code: 0
+
+--- STDOUT ---
+Loading dataset...
+Using dataset paths: ['Datasets']
+Train: 826244 samples, Test: 206562 samples
+
+Training pipeline (TF-IDF + Logistic Regression)...
+Evaluating on test set:
+  Accuracy : 0.8885
+  Precision: 0.9207
+  Recall   : 0.8378
+  F1       : 0.8773
+
+Full classification report (phishing=1, ham=0):
+              precision    recall  f1-score   support
+
+         ham       0.86      0.93      0.90    108318
+    phishing       0.92      0.84      0.88     98244
+
+    accuracy                           0.89    206562
+   macro avg       0.89      0.89      0.89    206562
+weighted avg       0.89      0.89      0.89    206562
+
+Model saved to: phishing_model.joblib
+
+=== Dataset summary ===
+rows: 1032806
+label_counts: {0: 541588, 1: 491218}
+missing text: 0
+empty text: 2
+
+Sample rows:
+  - label=1 text=CNN.com Daily Top 10
+
+>+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= >THE DAILY TOP 10 >from CNN.com >Top videos and stories as of: Aug  1, 2008  3:58 PM EDT >+=+=+=+=+=+=+=+=+=+=+=+=+=
+  - label=0 text=depcorp.com/
+  - label=0 text=Re: [Slaven Rezic <tqcsub@rezic.de>] Another regexp failure with utf8-flagged string and byte-flagged pattern
+
+>>>>> On 04 Nov 2007 18:34:57 +0100, Slaven Rezic  said:   > The attached mail seems to g
+  - label=0 text=samroberts.co.uk/
+  - label=0 text=https://www.walmart.com/browse/electronics/modems/3944_3951_126297_126304
+
+=== Validate model ===
+Command: scripts/validate_model.py --model-path phishing_model.joblib
+Return code: 0
+
+--- STDOUT ---
+Model file: phishing_model.joblib (227844 bytes)
+Load: OK
+Predictions:
+  - sample_0: PHISHING (confidence: 99.99%) | Subject: Verify your account now
+
+Click here to update your billing information.
+  - sample_1: HAM (confidence: 99.17%) | Subject: Team meeting
+
+Reminder: our team meeting is tomorrow at 10am.
+  - sample_2: PHISHING (confidence: 100.00%) | Subject: Verify your account now
+
+Dear customer,
+
+We detected unusual activity on your account. Click here to verify you...
+
+Result: VALID
+
+=== Agent scan ===
+Command: agent.py --email-file sample_email.txt
+Return code: 0
+
+--- STDOUT ---
+Prediction: PHISHING  (confidence: 100.00%)
+
+Detected signatures and suspicious patterns:
+  - click here: direct call-to-action to click a link
+  - verify your: request to verify sensitive account details
+  - billing information: sensitive payment request
+  - dear\s+customer: generic greeting often used by phishing emails
+  - (payment|billing|invoice).*(details|information|failed): financial urgency or payment request
+
+Assumptions:
+  - The model predicts this is phishing.
+  - Detected signature patterns that are often associated with phishing emails.
+
+=== Attack demo ===
+Command: attack.py
+Return code: 0
+
+--- STDOUT ---
+Loading model from: phishing_model.joblib
+Searching for a correctly-classified phishing email to attack...
+
+============================================================
+ORIGINAL EMAIL (before attack):
+------------------------------------------------------------
+Subject: unusual activity on your account
+
+We noticed unusual activity on your account. Confirm your information now to secure your account and avoid suspension. immediate verification needed.
+------------------------------------------------------------
+Prediction: PHISHING  (confidence: 99.99%)
+
+Attack failed: model did not flip with available perturbations.
