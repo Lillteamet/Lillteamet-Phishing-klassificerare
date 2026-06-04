@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+Version: 2026-06-04
+Summary: Added initial security analysis for the phishing model.
+
+What was added
+- Completed `SECURITY.md` with the first evasion attack analysis.
+- Documented that `agent.py` classified `sample_email.txt` as PHISHING with 100.00% confidence.
+- Documented that `attack.py` did not successfully flip the current model from PHISHING to HAM.
+
+Notes
+- The current model resisted the basic evasion attack using word substitutions and filler text.
+- More advanced evasion tests are still recommended, such as larger rewrites, misspellings, URL obfuscation, and adversarial examples.
+
+
 Version: 2026-06-02
 Summary: Implemented dataset ingestion, a scanning agent, training CLI options, dataset folder support, and team workflow guidance.
 
