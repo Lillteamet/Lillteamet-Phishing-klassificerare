@@ -2,15 +2,19 @@ CHANGELOG
 =========
 
 Version: 2026-06-04
-Summary: Added initial security analysis for the phishing model.
+Summary: Added initial security analysis and an enhanced evasion attack demo for the phishing model.
 
 What was added
 - Completed `SECURITY.md` with the first evasion attack analysis.
 - Documented that `agent.py` classified `sample_email.txt` as PHISHING with 100.00% confidence.
 - Documented that `attack.py` did not successfully flip the current model from PHISHING to HAM.
+- Added `attack_enhanced.py`, a separate attack demo that keeps the original `attack.py` unchanged.
+- Documented that `attack_enhanced.py --email-file sample_email.txt` successfully flipped the model from PHISHING 100.00% to HAM 71.12%.
 
 Notes
 - The current model resisted the basic evasion attack using word substitutions and filler text.
+- The enhanced attack shows that stronger evasion can still manipulate the model decision.
+- The model team can use `attack_enhanced.py` as a robustness test after future retraining.
 - More advanced evasion tests are still recommended, such as larger rewrites, misspellings, URL obfuscation, and adversarial examples.
 
 
