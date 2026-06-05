@@ -1,0 +1,14 @@
+# Simulated phishing example generated from attack_enhanced.py.
+# Reason saved: evasion succeeded; model changed from PHISHING 100.00% to HAM 71.12%.
+# Expected label for retraining: phishing
+
+Subject: review your profile now
+
+Dear customer,
+
+We detected recent activity on your profile. Visit the page to review your billing information soon and avoid service interruption.
+
+Best regards,
+Help Desk Team
+
+Hope this message finds you well. Please feel free to reach out if you have any questions. Have a great rest of your week. Looking forward to hearing from you. Best regards from the team. Thanks for your continued support. Let me know if there is anything I can help with.
