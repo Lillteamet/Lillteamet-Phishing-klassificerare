@@ -17,6 +17,7 @@ from pathlib import Path
 SEED = 42
 
 SUPPORTED_DATA_EXTENSIONS = [".csv", ".tsv", ".json"]
+TEXT_FILE_EXTENSIONS = [".txt"]
 TEXT_COLUMNS = [
     "text",
     "message",
@@ -219,6 +220,51 @@ def _extract_text_column(df: pd.DataFrame) -> pd.Series:
     )
 
 
+def _normalize_label_dir(name: str) -> int | None:
+    normalized = name.strip().lower().replace("_", " ").replace("-", " ")
+    if normalized in {
+        "phishing",
+        "phishing email",
+        "phishing emails",
+        "true phishing",
+        "malicious",
+    }:
+        return 1
+
+    if normalized in {
+        "false positive",
+        "false positives",
+        "ham",
+        "legit",
+        "legitimate",
+        "safe",
+        "normal",
+        "benign",
+        "false alarm",
+    }:
+        return 0
+
+    return None
+
+
+def _label_from_text_path(path: Path) -> int:
+    for ancestor in path.parents:
+        label = _normalize_label_dir(ancestor.name)
+        if label is not None:
+            return label
+
+    raise ValueError(
+        "Could not infer label for text file. Place it under a labeled folder such as 'phishing' or 'false positive'."
+    )
+
+
+def _load_text_file(path: Path, label: int) -> pd.DataFrame:
+    return pd.DataFrame({
+        "text": [path.read_text(encoding="utf-8", errors="replace")],
+        "label": [label],
+    })
+
+
 def _load_dataset_file(path: Path) -> pd.DataFrame:
     path = Path(path)
     if not path.exists():
@@ -227,7 +273,10 @@ def _load_dataset_file(path: Path) -> pd.DataFrame:
     if path.is_dir():
         frames = []
         for child in sorted(path.rglob("*")):
-            if child.suffix.lower() in SUPPORTED_DATA_EXTENSIONS:
+            if child.is_dir():
+                continue
+            child_suffix = child.suffix.lower()
+            if child_suffix in SUPPORTED_DATA_EXTENSIONS:
                 try:
                     frames.append(_load_dataset_file(child))
                 except (ValueError, pd.errors.EmptyDataError, UnicodeDecodeError) as exc:
@@ -235,11 +284,23 @@ def _load_dataset_file(path: Path) -> pd.DataFrame:
                         f"Skipping file {child}: {exc}",
                         UserWarning,
                     )
+            elif child_suffix in TEXT_FILE_EXTENSIONS:
+                try:
+                    label = _label_from_text_path(child)
+                    frames.append(_load_text_file(child, label))
+                except ValueError as exc:
+                    warnings.warn(
+                        f"Skipping text file {child}: {exc}",
+                        UserWarning,
+                    )
         if not frames:
             raise ValueError(f"No supported dataset files found in directory: {path}")
         return pd.concat(frames, ignore_index=True)
 
     suffix = path.suffix.lower()
+    if suffix == ".txt":
+        label = _label_from_text_path(path)
+        return _load_text_file(path, label)
     if suffix == ".csv":
         df = pd.read_csv(path)
     elif suffix == ".tsv":
@@ -251,7 +312,7 @@ def _load_dataset_file(path: Path) -> pd.DataFrame:
             df = pd.read_json(path)
     else:
         raise ValueError(
-            f"Unsupported dataset file type: {path}. Supported types: {', '.join(SUPPORTED_DATA_EXTENSIONS)}"
+            f"Unsupported dataset file type: {path}. Supported types: {', '.join(SUPPORTED_DATA_EXTENSIONS + TEXT_FILE_EXTENSIONS)}"
         )
 
     text = _extract_text_column(df)

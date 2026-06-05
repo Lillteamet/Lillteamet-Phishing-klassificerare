@@ -90,6 +90,14 @@ def dataset_summary(dataset_paths: list[str]) -> dict:
     }
 
 
+def _resolve_dataset_paths(dataset_paths: list[str] | None) -> list[str]:
+    resolved = list(dataset_paths or ["Datasets"])
+    enhancements_path = repo_root / "enhancements"
+    if "enhancements" not in resolved and enhancements_path.exists():
+        resolved.append("enhancements")
+    return resolved
+
+
 def build_report(args: argparse.Namespace) -> str:
     lines = [
         f"Validation report generated: {datetime.datetime.now(datetime.timezone.utc).isoformat()}",
@@ -97,14 +105,15 @@ def build_report(args: argparse.Namespace) -> str:
         "",
     ]
 
+    dataset_paths = _resolve_dataset_paths(args.dataset_paths)
     # Step 1: training
-    train_result = run_command(["train.py", "--dataset-paths", *args.dataset_paths], cwd=repo_root)
+    train_result = run_command(["train.py", "--dataset-paths", *dataset_paths], cwd=repo_root)
     lines.append(format_command_block("Train model", train_result))
 
     # Step 2: dataset summary
     lines.append("=== Dataset summary ===")
     try:
-        summary = dataset_summary(args.dataset_paths)
+        summary = dataset_summary(dataset_paths)
         lines.append(f"rows: {summary['rows']}")
         lines.append(f"label_counts: {summary['label_counts']}")
         lines.append(f"missing text: {summary['missing_text']}")
@@ -138,7 +147,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--dataset-paths",
         nargs="+",
-        default=["Datasets"],
+        default=None,
         help="Dataset directories or files to use for training and validation.",
     )
     parser.add_argument(

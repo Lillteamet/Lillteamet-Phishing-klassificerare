@@ -10,6 +10,7 @@ Run:
 """
 
 import argparse
+from pathlib import Path
 import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, precision_recall_fscore_support
@@ -22,6 +23,7 @@ from generate_data import generate_dataset
 MODEL_PATH = "phishing_model.joblib"
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
+DEFAULT_DATASET_PATHS = ["Datasets"]
 
 
 def parse_args():
@@ -78,8 +80,12 @@ def main():
     args = parse_args()
 
     print("Loading dataset...")
-    if args.dataset_paths:
-        print(f"Using dataset paths: {args.dataset_paths}")
+    if not args.dataset_paths:
+        args.dataset_paths = list(DEFAULT_DATASET_PATHS)
+        enhancements_path = Path("enhancements")
+        if enhancements_path.exists():
+            args.dataset_paths.append("enhancements")
+    print(f"Using dataset paths: {args.dataset_paths}")
 
     df = generate_dataset(dataset_paths=args.dataset_paths)
     X = df["text"].tolist()

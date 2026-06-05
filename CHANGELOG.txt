@@ -1,6 +1,24 @@
 CHANGELOG
 =========
 
+Version: 2026-06-05
+Summary: Added enhancement-folder training support and raw `.txt` email ingestion for adversarial data.
+
+What was added
+- `generate_data.py` now supports `.txt` emails under labeled folders and treats text files in `enhancements/phishing` as phishing and `enhancements/false positive` as ham.
+- `train.py` now automatically includes `enhancements/` along with `Datasets/` when no explicit `--dataset-paths` are provided.
+- `scripts/validate_pipeline.py` now also auto-includes `enhancements/` so validation uses the same enhanced training data.
+
+What was changed
+- `generate_data.py`: added raw text file ingestion (`.txt`) and directory-based label inference from parent folder names.
+- `train.py`: updated default dataset handling to include `enhancements` automatically when present.
+- `scripts/validate_pipeline.py`: updated dataset path resolution so validation uses the same enhancement data as training.
+
+Usage
+- Place crafted adversarial examples in `enhancements/phishing/*.txt`.
+- Place false positives in `enhancements/false positive/*.txt`.
+- Retrain with `python train.py` and validate with `./scripts/validate.sh`.
+
 Version: 2026-06-04
 Summary: Added initial security analysis and an enhanced evasion attack demo for the phishing model.
 
