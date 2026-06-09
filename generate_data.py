@@ -18,6 +18,9 @@ SEED = 42
 
 SUPPORTED_DATA_EXTENSIONS = [".csv", ".tsv", ".json"]
 TEXT_FILE_EXTENSIONS = [".txt"]
+SKIPPED_DATASET_NAMES = {"sources.txt"}
+SKIPPED_DATASET_SUFFIXES = {".md"}
+SKIPPED_DATASET_DIR_NAMES = {"zenodo"}
 TEXT_COLUMNS = [
     "text",
     "message",
@@ -182,20 +185,25 @@ def _normalize_label_value(value):
         return None
     if isinstance(value, bool):
         return int(value)
-    if isinstance(value, (int, np.integer)):
-        if value == 1:
-            return 1
-        if value == 0:
-            return 0
+    if isinstance(value, (int, np.integer, float, np.floating)):
+        try:
+            numeric = int(value)
+            if numeric in (0, 1):
+                return numeric
+        except (ValueError, OverflowError):
+            pass
     value_str = str(value).strip().lower()
     if value_str in PHISHING_LABELS:
         return 1
     if value_str in HAM_LABELS:
         return 0
-    if value_str.isdigit():
-        numeric = int(value_str)
-        if numeric in (0, 1):
-            return numeric
+    if value_str.replace(".", "", 1).isdigit():
+        try:
+            numeric = int(float(value_str))
+            if numeric in (0, 1):
+                return numeric
+        except ValueError:
+            pass
     return None
 
 
@@ -213,6 +221,14 @@ def _extract_text_column(df: pd.DataFrame) -> pd.Series:
     for candidate in TEXT_COLUMNS:
         if candidate in normalized_columns:
             return df[normalized_columns[candidate]].astype(str)
+
+    # Fallback for feature-based datasets (e.g., 2026 dataset) - use subject alone
+    if "subject" in normalized_columns:
+        warnings.warn(
+            "Using subject column alone (body not found). Dataset may be feature-based.",
+            UserWarning,
+        )
+        return df[normalized_columns["subject"]].astype(str)
 
     raise ValueError(
         "Could not find a text column in dataset file. Expected one of: "
@@ -247,6 +263,18 @@ def _normalize_label_dir(name: str) -> int | None:
     return None
 
 
+def _is_skipped_dataset_path(child: Path, root: Path) -> bool:
+    if root.name.lower() in SKIPPED_DATASET_DIR_NAMES:
+        return False
+    return any(part.lower() in SKIPPED_DATASET_DIR_NAMES for part in child.relative_to(root).parts)
+
+
+def _should_skip_dataset_file(path: Path) -> bool:
+    if path.name in SKIPPED_DATASET_NAMES:
+        return True
+    return path.suffix.lower() in SKIPPED_DATASET_SUFFIXES
+
+
 def _label_from_text_path(path: Path) -> int:
     for ancestor in path.parents:
         label = _normalize_label_dir(ancestor.name)
@@ -275,6 +303,14 @@ def _load_dataset_file(path: Path) -> pd.DataFrame:
         for child in sorted(path.rglob("*")):
             if child.is_dir():
                 continue
+            if _is_skipped_dataset_path(child, path):
+                continue
+            if _should_skip_dataset_file(child):
+                warnings.warn(
+                    f"Skipping known problematic file {child.name}",
+                    UserWarning,
+                )
+                continue
             child_suffix = child.suffix.lower()
             if child_suffix in SUPPORTED_DATA_EXTENSIONS:
                 try:
@@ -299,10 +335,37 @@ def _load_dataset_file(path: Path) -> pd.DataFrame:
 
     suffix = path.suffix.lower()
     if suffix == ".txt":
+        if _should_skip_dataset_file(path):
+            warnings.warn(
+                f"Skipping known problematic file {path.name}",
+                UserWarning,
+            )
+            return pd.DataFrame({"text": [], "label": []})
         label = _label_from_text_path(path)
         return _load_text_file(path, label)
     if suffix == ".csv":
-        df = pd.read_csv(path)
+        if _should_skip_dataset_file(path):
+            warnings.warn(
+                f"Skipping known problematic file {path.name}",
+                UserWarning,
+            )
+            return pd.DataFrame({"text": [], "label": []})
+        try:
+            df = pd.read_csv(path)
+        except pd.errors.ParserError as exc:
+            # Try with error_bad_lines for large files like TREC
+            try:
+                warnings.warn(
+                    f"Initial parse failed for {path.name}, retrying with error handling",
+                    UserWarning,
+                )
+                df = pd.read_csv(path, on_bad_lines="skip", engine="python")
+            except Exception as retry_exc:
+                warnings.warn(
+                    f"Malformed CSV file {path.name}: {exc}",
+                    UserWarning,
+                )
+                return pd.DataFrame({"text": [], "label": []})
     elif suffix == ".tsv":
         df = pd.read_csv(path, sep="\t")
     elif suffix == ".json":
@@ -330,11 +393,16 @@ def _load_dataset_file(path: Path) -> pd.DataFrame:
         )
 
     labels = df[label_column].apply(_normalize_label_value)
-    if labels.isna().any():
-        raise ValueError(
-            "Dataset contains unknown label values. "
-            "Use 0/1 or common labels like phishing/ham/legitimate."
+    # Drop rows with NaN labels instead of raising an error
+    valid_mask = labels.notna()
+    if not valid_mask.all():
+        skipped_count = (~valid_mask).sum()
+        warnings.warn(
+            f"Skipped {skipped_count} rows with unknown label values in {Path(path).name}",
+            UserWarning,
         )
+        text = text[valid_mask]
+        labels = labels[valid_mask]
 
     return pd.DataFrame({"text": text, "label": labels.astype(int)})
 
@@ -352,6 +420,8 @@ def generate_dataset(
         df = pd.concat(frames, ignore_index=True)
         if df.empty:
             raise ValueError("No data was loaded from the provided dataset paths.")
+        # Deduplicate on text content to avoid duplicate training samples
+        df = df.drop_duplicates(subset=["text"], keep="first")
         return df.sample(frac=1, random_state=SEED).reset_index(drop=True)
 
     rng = np.random.default_rng(SEED)

@@ -1,6 +1,23 @@
 CHANGELOG
 =========
 
+Version: 2026-06-09
+Summary: Fixed validation compatibility for the existing validation pipeline and moved helper modules into `scripts/`.
+
+What was added
+- `scripts/model_wrappers.py`: reusable `WrappedModel` class for streaming-trained model artifacts.
+- `scripts/save_wrapper.py`: optional wrapper CLI for converting dict-based model artifacts into wrapped objects.
+
+What was changed
+- `train.py`: imports `WrappedModel` from `scripts.model_wrappers` and saves streaming-trained models as wrapped objects.
+- `scripts/validate_model.py`: adds repository-root path injection so `phishing_model.joblib` can be loaded when the pipeline runs from `validate.sh`.
+- `scripts/save_wrapper.py`: also adds repository-root path injection so it can be executed from the repo root.
+- Moved `model_wrappers.py` and `save_wrapper.py` into `scripts/`.
+
+Notes
+- No dataset changes were made in this session; the work was purely validation compatibility and script organization.
+- `./scripts/validate.sh` now runs the existing validation pipeline successfully.
+
 Version: 2026-06-05
 Summary: Added enhancement-folder training support and raw `.txt` email ingestion for adversarial data.
 

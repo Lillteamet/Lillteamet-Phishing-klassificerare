@@ -11,3 +11,9 @@ URL: https://www.kaggle.com/datasets/kuladeep19/phishing-and-legitimate-emails-d
 
 Folder: phishing-dataset
 Repo: https://huggingface.co/datasets/ealvaradob/phishing-dataset
+
+Folder: Zenodo
+URL: https://zenodo.org/records/8339691
+
+File: Phishing Email Detection 2026 Dataset
+URL: https://www.kaggle.com/datasets/prince7489/phishing-email-detection-2026-dataset

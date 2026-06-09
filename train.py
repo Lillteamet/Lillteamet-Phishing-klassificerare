@@ -10,20 +10,21 @@ Run:
 """
 
 import argparse
-from pathlib import Path
 import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, precision_recall_fscore_support
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import HashingVectorizer
+from sklearn.linear_model import SGDClassifier
 
 from generate_data import generate_dataset
+from scripts.model_wrappers import WrappedModel
 
 MODEL_PATH = "phishing_model.joblib"
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
-DEFAULT_DATASET_PATHS = ["Datasets"]
 
 
 def parse_args():
@@ -45,6 +46,11 @@ def parse_args():
         default=TEST_SIZE,
         help="Fraction of data reserved for evaluation.",
     )
+    parser.add_argument(
+        "--streaming",
+        action="store_true",
+        help="Force streaming training (HashingVectorizer + SGD) instead of TF-IDF pipeline.",
+    )
     return parser.parse_args()
 
 
@@ -57,11 +63,60 @@ def build_pipeline() -> Pipeline:
             sublinear_tf=True,   # apply log(1 + tf) scaling
         )),
         ("clf", LogisticRegression(
+            solver="saga",
             max_iter=1000,
             random_state=RANDOM_STATE,
             C=1.0,
         )),
     ])
+
+
+def streaming_train(df: "pd.DataFrame", args) -> tuple:
+    """Train using a streaming approach: HashingVectorizer + SGDClassifier.
+
+    Returns (vectorizer, classifier)
+    """
+    X = df["text"].tolist()
+    y = df["label"].tolist()
+
+    # split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=args.test_size,
+        random_state=RANDOM_STATE,
+        stratify=y,
+    )
+    print(f"Train: {len(X_train)} samples, Test: {len(X_test)} samples\n")
+
+    print("Streaming training (HashingVectorizer + SGDClassifier)...")
+    vectorizer = HashingVectorizer(ngram_range=(1, 2), n_features=2 ** 18, alternate_sign=False)
+    clf = SGDClassifier(loss="log_loss", random_state=RANDOM_STATE)
+
+    batch_size = 50000
+    classes = [0, 1]
+    # Partial fit in batches
+    for i in range(0, len(X_train), batch_size):
+        X_batch = X_train[i : i + batch_size]
+        y_batch = y_train[i : i + batch_size]
+        X_vec = vectorizer.transform(X_batch)
+        if i == 0:
+            clf.partial_fit(X_vec, y_batch, classes=classes)
+        else:
+            clf.partial_fit(X_vec, y_batch)
+        print(f"  Trained on batch {i}..{i+len(X_batch)}")
+
+    # evaluate
+    X_test_vec = vectorizer.transform(X_test)
+    y_pred = clf.predict(X_test_vec)
+    print("Evaluating on test set:")
+    print_metrics(y_test, y_pred)
+
+    # save model as a wrapped object so downstream scripts can call predict()/predict_proba()
+    wrapped_model = WrappedModel(vectorizer, clf)
+    joblib.dump(wrapped_model, args.model_path)
+    print(f"Model saved to: {args.model_path}")
+    return vectorizer, clf
 
 
 def print_metrics(y_true, y_pred) -> None:
@@ -80,14 +135,19 @@ def main():
     args = parse_args()
 
     print("Loading dataset...")
-    if not args.dataset_paths:
-        args.dataset_paths = list(DEFAULT_DATASET_PATHS)
-        enhancements_path = Path("enhancements")
-        if enhancements_path.exists():
-            args.dataset_paths.append("enhancements")
-    print(f"Using dataset paths: {args.dataset_paths}")
+    if args.dataset_paths:
+        print(f"Using dataset paths: {args.dataset_paths}")
+    else:
+        print("Using synthetic dataset")
 
     df = generate_dataset(dataset_paths=args.dataset_paths)
+
+    # Auto fallback to streaming for very large datasets to avoid memory/timeouts
+    use_streaming = args.streaming or len(df) > 300_000
+    if use_streaming:
+        streaming_train(df, args)
+        return
+
     X = df["text"].tolist()
     y = df["label"].tolist()
 
