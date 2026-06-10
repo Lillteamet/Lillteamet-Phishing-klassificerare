@@ -306,10 +306,6 @@ def _load_dataset_file(path: Path) -> pd.DataFrame:
             if _is_skipped_dataset_path(child, path):
                 continue
             if _should_skip_dataset_file(child):
-                warnings.warn(
-                    f"Skipping known problematic file {child.name}",
-                    UserWarning,
-                )
                 continue
             child_suffix = child.suffix.lower()
             if child_suffix in SUPPORTED_DATA_EXTENSIONS:
@@ -336,19 +332,11 @@ def _load_dataset_file(path: Path) -> pd.DataFrame:
     suffix = path.suffix.lower()
     if suffix == ".txt":
         if _should_skip_dataset_file(path):
-            warnings.warn(
-                f"Skipping known problematic file {path.name}",
-                UserWarning,
-            )
             return pd.DataFrame({"text": [], "label": []})
         label = _label_from_text_path(path)
         return _load_text_file(path, label)
     if suffix == ".csv":
         if _should_skip_dataset_file(path):
-            warnings.warn(
-                f"Skipping known problematic file {path.name}",
-                UserWarning,
-            )
             return pd.DataFrame({"text": [], "label": []})
         try:
             df = pd.read_csv(path)

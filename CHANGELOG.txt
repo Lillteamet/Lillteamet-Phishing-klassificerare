@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+Version: 2026-06-10
+Summary: Confirmed enhancement phishing labels and silenced expected metadata-file skip warnings.
+
+What was changed
+- `generate_data.py`: known skipped files such as `sources.txt` and `.md` notes are now ignored silently instead of printing `Skipping known problematic file` warnings.
+
+Verification
+- Files under `Datasets/enhancements/phishing/` are still labeled as phishing (`1`) by directory inference.
+- `Datasets/enhancements` currently loads as phishing-only enhancement data for the added adversarial examples.
+
 Version: 2026-06-09
 Summary: Added an adaptive evasion attack that succeeds against the current retrained model.
 

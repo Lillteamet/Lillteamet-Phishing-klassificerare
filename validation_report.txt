@@ -45,13 +45,6 @@ Full classification report (phishing=1, ham=0):
 weighted avg       0.87      0.87      0.87    203232
 
 Model saved to: phishing_model.joblib
-
---- STDERR ---
-/workspaces/Lillteamet-Phishing-klassificerare/generate_data.py:309: UserWarning: Skipping known problematic file agent-enhancements.md
-  warnings.warn(
-/workspaces/Lillteamet-Phishing-klassificerare/generate_data.py:309: UserWarning: Skipping known problematic file sources.txt
-  warnings.warn(
-
 === Dataset summary ===
 rows: 1016156
 label_counts: {0: 530536, 1: 485620}
