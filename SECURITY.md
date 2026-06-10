@@ -147,3 +147,84 @@ attackyta. Originalattacken lyckades inte lura modellen, men den förbättrade
 attacken i `attack_enhanced.py` lyckades flippa modellen från `PHISHING` till
 `HAM`. Det ger modellteamet ett konkret robusthetstest att använda när modellen
 förbättras.
+
+---
+
+## Uppdatering: adaptiv attack mot den retrainade modellen
+
+Efter retraining stod modellen emot den tidigare förbättrade attacken mot
+`sample_email.txt`:
+
+```text
+Original prediction: PHISHING  (confidence: 70.36%)
+Final prediction: PHISHING  (confidence: 69.54%)
+Result: attack failed to flip the model
+```
+
+Vi skapade därför en ny separat attackdemo i `attack_adaptive.py`. Den ändrar
+inte originalfilen `attack.py` och skriver inga nya datasetfiler. Syftet är att
+visa en kontrollerad säkerhetstestning där ett phishingmejl skrivs om mer
+aggressivt:
+
+- tydliga signalord tas bort, till exempel `click here`, `verify now`,
+  `password` och starkt billing-språk
+- ärendet skrivs om till mjukare support- eller leveransspråk
+- URL:en obfuskeras med en simulerad example-domän
+- legitimt klingande supporttext används för att ändra textprofilen
+
+Körning:
+
+```bash
+python attack_adaptive.py --email-file sample_email.txt
+```
+
+Resultat mot den aktuella modellen:
+
+```text
+Original prediction: PHISHING  (confidence: 70.36%)
+Final prediction: HAM  (confidence: 78.91%)
+Result: EVASION SUCCESSFUL
+```
+
+Det betyder att modellen har blivit mer robust mot den gamla attacken, men att
+den fortfarande är sårbar mot större omskrivningar som behåller ett misstänkt
+syfte men undviker modellens starkaste phishing-signaler.
+
+Rekommendation till Data/Modell:
+
+- använd den här typen av exempel som adversarial testfall
+- lägg till ett litet antal kontrollerade exempel i träningsdatan
+- komplettera textmodellen med URL-features och regler för obfuskerade länkar
+- flagga låg eller konfliktfylld confidence för manuell granskning
+
+### Attackpaket för retraining
+
+Följande kontrollerade phishing-exempel lades till under
+`Datasets/enhancements/phishing/`. Dataset-loadern tolkar filer i den mappen som
+phishing. Filerna innehåller bara mejltext, utan metadata, så att modellen tränas
+på själva attackmönstret.
+
+```text
+adaptive_evasion_success.txt              -> HAM 78.91%
+adaptive_evasion_delivery_preference.txt  -> HAM 76.82%
+adaptive_evasion_access_review.txt        -> HAM 63.94%
+adaptive_evasion_support_followup.txt     -> HAM 60.39%
+```
+
+Det här är ett litet attackpaket, inte en stor dataset-utökning. Poängen är att
+ge Data/Modell några tydliga verifierade missar att använda vid retraining och
+eftertest.
+
+Efter att Modell har tränat om bör samma filer testas igen:
+
+```bash
+python agent.py --email-file Datasets/enhancements/phishing/adaptive_evasion_success.txt
+python agent.py --email-file Datasets/enhancements/phishing/adaptive_evasion_delivery_preference.txt
+python agent.py --email-file Datasets/enhancements/phishing/adaptive_evasion_access_review.txt
+python agent.py --email-file Datasets/enhancements/phishing/adaptive_evasion_support_followup.txt
+python attack_adaptive.py --email-file sample_email.txt
+```
+
+Förväntat förbättrat resultat är att de sparade exemplen klassas som
+`PHISHING`, och att `attack_adaptive.py` inte längre lyckas flippa modellen till
+`HAM`.

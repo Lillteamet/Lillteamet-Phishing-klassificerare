@@ -2,6 +2,46 @@ CHANGELOG
 =========
 
 Version: 2026-06-09
+Summary: Added an adaptive evasion attack that succeeds against the current retrained model.
+
+What was added
+- `attack_adaptive.py`: separate controlled attack demo that tests larger phishing-style rewrites against `phishing_model.joblib` without modifying `attack.py` or writing dataset files.
+- `Datasets/enhancements/phishing/adaptive_evasion_success.txt`: phishing training example from the successful adaptive evasion attack.
+- `Datasets/enhancements/phishing/adaptive_evasion_delivery_preference.txt`: delivery-themed phishing variant missed by the current model.
+- `Datasets/enhancements/phishing/adaptive_evasion_access_review.txt`: access-review phishing variant missed by the current model.
+- `Datasets/enhancements/phishing/adaptive_evasion_support_followup.txt`: support-follow-up phishing variant missed by the current model.
+
+Result
+- `sample_email.txt` baseline: PHISHING 70.36%.
+- `attack_enhanced.py --email-file sample_email.txt`: resisted by the current model, final PHISHING 69.54%.
+- `attack_adaptive.py --email-file sample_email.txt`: evasion succeeded, final HAM 78.91%.
+- Verified retraining examples before handoff:
+  `adaptive_evasion_success.txt` -> HAM 78.91%,
+  `adaptive_evasion_delivery_preference.txt` -> HAM 76.82%,
+  `adaptive_evasion_access_review.txt` -> HAM 63.94%,
+  `adaptive_evasion_support_followup.txt` -> HAM 60.39%.
+
+Notes
+- The successful rewrite uses simulated content and example domains only.
+- The result should be handed to Data/Modell as evidence for further robustness work.
+
+Version: 2026-06-09
+Summary: Added a defensive adversarial training generator for hard phishing examples.
+
+What was added
+- `attack_training_generator.py`: separate tool that generates simulated evasion-style phishing emails, tests them against `phishing_model.joblib`, and saves the hardest examples under `Datasets/enhancements/phishing/`.
+
+Usage
+- Preview candidates without writing files: `python attack_training_generator.py --dry-run --candidates 40 --limit 8`
+- Save a small capped set for retraining: `python attack_training_generator.py --candidates 40 --limit 8`
+- Add a specific seed email: `python attack_training_generator.py --email-file sample_email.txt --dry-run`
+
+Notes
+- `attack.py` remains unchanged.
+- Generated examples are capped by `--limit` so the enhancement dataset is not filled with too many near-duplicate files.
+- Only anonymized or simulated phishing emails should be saved under `Datasets/enhancements/`.
+
+Version: 2026-06-09
 Summary: Fixed validation compatibility for the existing validation pipeline and moved helper modules into `scripts/`.
 
 What was added

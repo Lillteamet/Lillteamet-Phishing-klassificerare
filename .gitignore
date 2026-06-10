@@ -1,5 +1,6 @@
 venv/
 __pycache__/
 *.joblib
+*:Zone.Identifier
 *.pyc
 .DS_Store
