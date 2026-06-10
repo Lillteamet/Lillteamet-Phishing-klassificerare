@@ -1,4 +1,4 @@
-Validation report generated: 2026-06-09T07:47:42.661414+00:00
+Validation report generated: 2026-06-10T08:08:43.504103+00:00
 Repository root: /workspaces/Lillteamet-Phishing-klassificerare
 
 === Train model ===
@@ -8,7 +8,7 @@ Return code: 0
 --- STDOUT ---
 Loading dataset...
 Using dataset paths: ['Datasets']
-Train: 812921 samples, Test: 203231 samples
+Train: 812924 samples, Test: 203232 samples
 
 Streaming training (HashingVectorizer + SGDClassifier)...
   Trained on batch 0..50000
@@ -27,22 +27,22 @@ Streaming training (HashingVectorizer + SGDClassifier)...
   Trained on batch 650000..700000
   Trained on batch 700000..750000
   Trained on batch 750000..800000
-  Trained on batch 800000..812921
+  Trained on batch 800000..812924
 Evaluating on test set:
-  Accuracy : 0.8703
-  Precision: 0.9027
-  Recall   : 0.8165
-  F1       : 0.8574
+  Accuracy : 0.8690
+  Precision: 0.9031
+  Recall   : 0.8131
+  F1       : 0.8557
 
 Full classification report (phishing=1, ham=0):
               precision    recall  f1-score   support
 
-         ham       0.85      0.92      0.88    106108
-    phishing       0.90      0.82      0.86     97123
+         ham       0.84      0.92      0.88    106108
+    phishing       0.90      0.81      0.86     97124
 
-    accuracy                           0.87    203231
-   macro avg       0.87      0.87      0.87    203231
-weighted avg       0.87      0.87      0.87    203231
+    accuracy                           0.87    203232
+   macro avg       0.87      0.87      0.87    203232
+weighted avg       0.87      0.87      0.87    203232
 
 Model saved to: phishing_model.joblib
 
@@ -53,19 +53,17 @@ Model saved to: phishing_model.joblib
   warnings.warn(
 
 === Dataset summary ===
-rows: 1016152
-label_counts: {0: 530536, 1: 485616}
+rows: 1016156
+label_counts: {0: 530536, 1: 485620}
 missing text: 0
 empty text: 2
 
 Sample rows:
-  - label=1 text=CNN.com Daily Top 10
-
->+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= >THE DAILY TOP 10 >from CNN.com >Top videos and stories as of: Aug  1, 2008  3:58 PM EDT >+=+=+=+=+=+=+=+=+=+=+=+=+=
-  - label=1 text=paypal.com-us.cgi-bin-webscr-cmd.login-submit-dispatch.74fghghs68g48fyrt4mn86wvnchtor26hgbfn83m48hg3ufggd4s83f4xct1aa.hoteltroni.com.br/pa/pa/
-  - label=1 text=mail.americanas.pago-livre.com
-  - label=1 text=http://www.adhithyainteriors.com/db/dropbox/proposal/LoginVerification.php
-  - label=1 text=pastehtml.com/view/beju8obr7.html
+  - label=1 text=numoloshop.club
+  - label=0 text=jenniferabod.com/news/laney.htm
+  - label=1 text=safra.acessobrasilempresas4.com
+  - label=1 text=https://pykaqtuwxz.duckdns.org/
+  - label=1 text=opkoop-centrale.nl
 
 === Validate model ===
 Command: scripts/validate_model.py --model-path phishing_model.joblib
@@ -78,10 +76,10 @@ Predictions:
   - sample_0: PHISHING (confidence: 97.65%) | Subject: Verify your account now
 
 Click here to update your billing information.
-  - sample_1: HAM (confidence: 67.26%) | Subject: Team meeting
+  - sample_1: HAM (confidence: 67.19%) | Subject: Team meeting
 
 Reminder: our team meeting is tomorrow at 10am.
-  - sample_2: PHISHING (confidence: 70.36%) | Subject: review your profile now
+  - sample_2: PHISHING (confidence: 69.70%) | Subject: review your profile now
 
 Dear customer,
 
@@ -94,7 +92,7 @@ Command: agent.py --email-file sample_email.txt
 Return code: 0
 
 --- STDOUT ---
-Prediction: PHISHING  (confidence: 70.36%)
+Prediction: PHISHING  (confidence: 69.70%)
 
 Detected signatures and suspicious patterns:
   - billing information: sensitive payment request
@@ -120,6 +118,6 @@ Subject: unusual activity on your account
 
 We noticed unusual activity on your account. Confirm your information now to secure your account and avoid suspension. immediate verification needed.
 ------------------------------------------------------------
-Prediction: PHISHING  (confidence: 95.97%)
+Prediction: PHISHING  (confidence: 95.91%)
 
 Attack failed: model did not flip with available perturbations.
