@@ -1,0 +1,78 @@
+Subject: As discussed - End User Computing Field Services Engineer to Work OnSite in Gothenburg, Sweden
+
+Dear,
+
+ 
+
+Greetings from InfinityQuest!!!
+I’m Shiva Shanmugaraj and I’m from the company Infinity Quest. I came across your profile through LinkedIn and I'm looking for people with your background. I was wondering if you would like to connect and discuss possibilities?
+
+Pls go through the below Job Description and respond back to me if you are interested.
+
+Position: End User Computing Field Services Engineer – Swedish Speaker
+Base Location:  OnSite in Gothenburg, Sweden – 5 Days/Week in the Office
+Position Type: Contract
+
+
+About the role
+KEY
+Deliver high-quality on-site IT Services by ensuring timely issue resolution, proactive maintenance, and adherence to IT best practices. Enhance user satisfaction and operational excellence across the organization.
+
+
+RESPONSIBILITIES
+
+Provide IT support across a wide range of client activities.
+Maintain end-user computing equipment, primarily Windows-based systems, with some Linux machines.
+Manage the ticket queue by reviewing open tickets and following approved workflows.
+Prioritize tasks effectively based on SLAs, call volumes, site criticality, and customer requirements.
+Manage inventory of laptops.
+Deliver ‘White Glove’ service to users, even in high-pressure situations.
+Work effectively in a project-based environment that requires flexibility and strong teamwork.
+Perform other duties as assigned by the End-User Computing (EUC) Manager.
+ 
+
+KNOWLEDGE:
+
+Strong understanding of deskside support operations and key ITSM concepts such as incident management, service request management, categorization, and prioritization.
+Proficient in ServiceNow ticket workflows for both incidents (break & fix) and service requests (e.g., laptop provisioning: 'Check Inventory', 'Image and Deploy').
+Intermediate knowledge of core infrastructure components such as Domain Controllers, Active Directory, Group Policies, DHCP, DNS, and related technologies.
+ 
+
+TECHNICAL SKILLS:
+
+Proficiency in Windows 11 and Microsoft Office 365 (Outlook, Teams), including installation, initial configuration, and basic support.
+Standard endpoint management experience using Microsoft Intune or Active Directory.
+Ability to troubleshoot printers, webcams, speakers, docking stations, drivers, firmware, and more.
+Basic to intermediate troubleshooting skills with Linux systems.
+Experience supporting audio/visual (A/V) equipment in conference room environments.
+Strong problem-solving skills including root cause analysis (RCA).
+ 
+
+BUSINESS SKILLS:
+
+Ability to interact with customers politely, professionally, and efficiently in all situations.
+Strong interpersonal skills with the ability to build and maintain business relationships across the organization.
+Visible and approachable for both customers and internal IT support teams.
+Effective verbal and written communication skills in English (mandatory).
+ 
+
+SKILLS, EXPERIENCE AND QUALIFICATION REQUIRED FOR THE POSITION:
+
+Strong understanding of deskside support, IT service delivery and project work within End-User Computing (EUC) or Field Support Operations (FSO) environments.
+Proficient in Windows 11, Microsoft Office 365, and endpoint management tools (e.g., Microsoft Intune, Active Directory); Linux knowledge is also required.
+Strong attention to detail and organizational skills, essential for maintaining accurate laptop inventory.
+Ability to provide consistent, high-quality customer support across a diverse user base, including various personality types and management levels (e.g. C-suite executives).
+Experience providing IT support to manufacturing sites (factories) is desirable.
+Flexible and adaptable, with a proactive “can-do” attitude to meet client deliverables and timelines.
+The primary work location will be the client’s office in the designated area.
+Occasional business travel may be required.
+ 
+
+EDUCATION:
+
+Minimum bachelor's degree or technical diploma in a relevant field.
+Microsoft and other technical certifications are considered an advantage.
+ITIL certification is desirable.
+ 
+
+Kind Regards,
