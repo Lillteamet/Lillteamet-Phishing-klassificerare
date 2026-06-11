@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Inbox - Phishing Email Classifier{% endblock %}
+
+{% block content %}
+<div class="stats-bar">
+    <div class="stat-card">
+        <h3>Total in Inbox</h3>
+        <div class="value">{{ stats.total_inbox }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Correctly Classified</h3>
+        <div class="value">{{ stats.correct_classifications }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>False Positives</h3>
+        <div class="value" style="color: #ffc107;">{{ stats.false_positives }}</div>
+    </div>
+</div>
+
+<div class="action-bar">
+    <button onclick="syncEmails(this)">🔄 Sync Incoming Emails</button>
+    <button class="secondary" onclick="clearAll(this)">🗑️ Clear All</button>
+</div>
+
+{% if emails %}
+    <div class="email-list">
+        {% for email in emails %}
+            <div class="email-item ham" onclick="openEmailModal('{{ email.id }}')">
+                <div class="email-header">
+                    <div class="email-subject">{{ email.subject }}</div>
+                    <div>
+                        <span class="badge ham">{{ email.agent_prediction }}</span>
+                        {% if email.is_correct %}
+                            <span class="correct-check">✓</span>
+                        {% else %}
+                            <span class="incorrect-cross">✗</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="confidence">
+                    Confidence: {{ email.agent_confidence }} | 
+                    {% if email.email_type == 'HAM' %}
+                        Real: HAM
+                    {% else %}
+                        Real: PHISHING <span style="color: #ffc107;">(False Positive)</span>
+                    {% endif %}
+                </div>
+                <div class="preview">{{ email.body[:100] }}...</div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <h3>📭 Inbox is Empty</h3>
+        <p>Click "Sync Incoming Emails" to generate and classify sample emails.</p>
+    </div>
+{% endif %}
+{% endblock %}

@@ -430,6 +430,22 @@ def generate_dataset(
     return df
 
 
+def generate_phishing_email() -> tuple[str, str]:
+    """Generate a random phishing email and return (subject, body)."""
+    rng = np.random.default_rng()
+    subject = rng.choice(PHISHING_SUBJECTS)
+    body = rng.choice(PHISHING_BODIES)
+    return subject, body
+
+
+def generate_ham_email() -> tuple[str, str]:
+    """Generate a random legitimate (ham) email and return (subject, body)."""
+    rng = np.random.default_rng()
+    subject = rng.choice(HAM_SUBJECTS)
+    body = rng.choice(HAM_BODIES)
+    return subject, body
+
+
 if __name__ == "__main__":
     df = generate_dataset()
     print(f"Dataset: {len(df)} samples ({df['label'].sum()} phishing, {(df['label']==0).sum()} ham)")

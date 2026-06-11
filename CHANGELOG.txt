@@ -2,6 +2,23 @@ CHANGELOG
 =========
 
 Version: 2026-06-11
+Summary: Added a Flask web application demo for email classification, inbox/junk management, and agent logging.
+
+What was added
+- `webapp.py`: new Flask application with inbox, junk folder, and `/inbox/logs` views.
+- `templates/`: HTML templates for inbox, junk, logs, and shared layout.
+- `run_webapp.sh` / `run_webapp.bat`: startup scripts for Linux/Mac and Windows.
+- `WEBAPP_README.md` and `WEBAPP_SETUP.md`: documentation for running the demo.
+
+What was changed
+- `requirements.txt`: added `Flask` and `Flask-SQLAlchemy`.
+- `generate_data.py`: added helper functions for random and adversarial email generation.
+- `agent.py` integration: the web app now scans generated emails with the existing phishing agent.
+
+Notes
+- The web app generates sample email traffic, classifies it with the agent, stores results in SQLite, and preserves false positive/false negative behavior for demo purposes.
+
+Version: 2026-06-11
 Summary: Consolidated adaptive evasion into `attack.py`.
 
 What was changed
