@@ -59,9 +59,22 @@ def parse_args():
         type=int,
         default=ENHANCEMENT_MULTIPLIER,
         help=(
-            "How many total times enhancement examples should influence training. "
+            "Default number of total times enhancement examples should influence training. "
+            "Used for both classes unless a class-specific multiplier is provided. "
             "Use 1 to disable oversampling."
         ),
+    )
+    parser.add_argument(
+        "--phishing-enhancement-multiplier",
+        type=int,
+        default=None,
+        help="Override multiplier for phishing enhancement examples (label 1).",
+    )
+    parser.add_argument(
+        "--false-positive-enhancement-multiplier",
+        type=int,
+        default=None,
+        help="Override multiplier for false-positive/ham enhancement examples (label 0).",
     )
     return parser.parse_args()
 
@@ -102,18 +115,49 @@ def apply_enhancement_oversampling(
     X_train: list[str],
     y_train: list[int],
     enhancement_df: pd.DataFrame,
-    multiplier: int,
+    default_multiplier: int,
+    phishing_multiplier: int | None = None,
+    false_positive_multiplier: int | None = None,
 ) -> tuple[list[str], list[int]]:
     """Append enhancement examples to the training split without leaking into test."""
-    if multiplier <= 1 or enhancement_df.empty:
+    if enhancement_df.empty:
         return X_train, y_train
 
-    extra_repeats = multiplier - 1
-    extra_X = enhancement_df["text"].tolist() * extra_repeats
-    extra_y = enhancement_df["label"].astype(int).tolist() * extra_repeats
+    phishing_multiplier = (
+        default_multiplier if phishing_multiplier is None else phishing_multiplier
+    )
+    false_positive_multiplier = (
+        default_multiplier if false_positive_multiplier is None else false_positive_multiplier
+    )
+
+    extra_X = []
+    extra_y = []
+    multiplier_by_label = {
+        1: phishing_multiplier,
+        0: false_positive_multiplier,
+    }
+
+    for label, multiplier in multiplier_by_label.items():
+        if multiplier <= 1:
+            continue
+        label_rows = enhancement_df[enhancement_df["label"] == label]
+        if label_rows.empty:
+            continue
+        extra_repeats = multiplier - 1
+        extra_X.extend(label_rows["text"].tolist() * extra_repeats)
+        extra_y.extend(label_rows["label"].astype(int).tolist() * extra_repeats)
+
+        label_name = "phishing" if label == 1 else "false_positive"
+        print(
+            f"Oversampling {label_name} enhancements: {len(label_rows)} rows "
+            f"x{multiplier} ({len(label_rows) * extra_repeats} extra training rows)"
+        )
+
+    if not extra_X:
+        return X_train, y_train
 
     print(
-        f"Oversampling enhancements: {len(enhancement_df)} rows x{multiplier} "
+        f"Total enhancement oversampling: {len(enhancement_df)} rows "
         f"({len(extra_X)} extra training rows)"
     )
     return X_train + extra_X, y_train + extra_y
@@ -157,6 +201,8 @@ def streaming_train(df: "pd.DataFrame", enhancement_df: "pd.DataFrame", args) ->
         y_train,
         enhancement_df,
         args.enhancement_multiplier,
+        args.phishing_enhancement_multiplier,
+        args.false_positive_enhancement_multiplier,
     )
     print(f"Train: {len(X_train)} samples, Test: {len(X_test)} samples\n")
 
@@ -237,6 +283,8 @@ def main():
         y_train,
         enhancement_df,
         args.enhancement_multiplier,
+        args.phishing_enhancement_multiplier,
+        args.false_positive_enhancement_multiplier,
     )
     print(f"Train: {len(X_train)} samples, Test: {len(X_test)} samples\n")
 

@@ -7,10 +7,12 @@ Summary: Added enhancement oversampling during training so adversarial examples 
 What was changed
 - `train.py`: loads `Datasets/enhancements/` separately and oversamples those rows into the training split only.
 - Added `--enhancement-multiplier` with default `300`; use `--enhancement-multiplier 1` to disable this behavior.
+- Added class-specific overrides: `--phishing-enhancement-multiplier` for phishing examples and `--false-positive-enhancement-multiplier` for ham/false-positive examples.
 
 Why
 - Verified that enhancement examples were correctly labeled as phishing (`1`), but a few rows had too little influence compared with the full dataset.
 - Oversampling after train/test split gives curated enhancement examples more training weight without duplicating them into the evaluation split.
+- Separate class-specific multipliers make it possible to reduce over-sensitive phishing behavior by adding and weighting false positives without lowering phishing example weight.
 
 Version: 2026-06-10
 Summary: Confirmed enhancement phishing labels and silenced expected metadata-file skip warnings.
