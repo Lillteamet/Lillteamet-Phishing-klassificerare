@@ -2,6 +2,17 @@ CHANGELOG
 =========
 
 Version: 2026-06-11
+Summary: Consolidated adaptive evasion into `attack.py`.
+
+What was changed
+- `attack.py`: now supports `--mode baseline` and `--mode adaptive`.
+- Removed `attack_adaptive.py`; its adaptive rewrite demo now runs with `python attack.py --mode adaptive --email-file sample_email.txt`.
+- `README.md` and `SECURITY.md` were updated to use the consolidated command.
+
+Notes
+- `attack_training_generator.py` remains separate because it creates defensive retraining examples rather than only running a demo attack.
+
+Version: 2026-06-11
 Summary: Added enhancement oversampling during training so adversarial examples affect the model.
 
 What was changed

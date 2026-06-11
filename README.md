@@ -12,6 +12,7 @@ Projektet är avsiktligt enkelt skrivet: syftet är att ni ska förstå varje ra
 python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt
 python train.py
 python attack.py
+python attack.py --mode adaptive --email-file sample_email.txt
 ```
 
 Det är allt. Ingen nerladdning, ingen GPU, inget internet krävs.
@@ -51,11 +52,21 @@ Rollerna är ett startläge, inte en låst struktur. Hjälp varandra.
 
 ## Attackera er egen modell
 
-Scriptet `attack.py` visar en enkel adversarial attack:
+Scriptet `attack.py` visar adversarial attacker med olika lägen:
+
+```bash
+python attack.py --mode baseline
+python attack.py --mode adaptive --email-file sample_email.txt
+```
+
+Baseline-läget visar en enkel adversarial attack:
 
 1. Det letar upp ett phishing-mail som modellen klassificerar korrekt med hög säkerhet.
 2. Det byter ut "trigger-ord" (t.ex. "click here" -> "visit the page", "urgent" -> "upcoming").
 3. Det lägger till ofarliga meningar tills modellen flippar till HAM.
+
+Adaptive-läget testar en starkare omskrivningsattack med mjukare support- eller
+leveransspråk och obfuskerad example-URL.
 
 Resultatet skrivs ut tydligt:
 

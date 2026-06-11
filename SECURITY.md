@@ -161,10 +161,9 @@ Final prediction: PHISHING  (confidence: 69.54%)
 Result: attack failed to flip the model
 ```
 
-Vi skapade därför en ny separat attackdemo i `attack_adaptive.py`. Den ändrar
-inte originalfilen `attack.py` och skriver inga nya datasetfiler. Syftet är att
-visa en kontrollerad säkerhetstestning där ett phishingmejl skrivs om mer
-aggressivt:
+Vi skapade därför ett adaptivt attackläge i `attack.py`. Det skriver inga nya
+datasetfiler. Syftet är att visa en kontrollerad säkerhetstestning där ett
+phishingmejl skrivs om mer aggressivt:
 
 - tydliga signalord tas bort, till exempel `click here`, `verify now`,
   `password` och starkt billing-språk
@@ -175,7 +174,7 @@ aggressivt:
 Körning:
 
 ```bash
-python attack_adaptive.py --email-file sample_email.txt
+python attack.py --mode adaptive --email-file sample_email.txt
 ```
 
 Resultat mot den aktuella modellen:
@@ -222,9 +221,9 @@ python agent.py --email-file Datasets/enhancements/phishing/adaptive_evasion_suc
 python agent.py --email-file Datasets/enhancements/phishing/adaptive_evasion_delivery_preference.txt
 python agent.py --email-file Datasets/enhancements/phishing/adaptive_evasion_access_review.txt
 python agent.py --email-file Datasets/enhancements/phishing/adaptive_evasion_support_followup.txt
-python attack_adaptive.py --email-file sample_email.txt
+python attack.py --mode adaptive --email-file sample_email.txt
 ```
 
 Förväntat förbättrat resultat är att de sparade exemplen klassas som
-`PHISHING`, och att `attack_adaptive.py` inte längre lyckas flippa modellen till
-`HAM`.
+`PHISHING`, och att `attack.py --mode adaptive` inte längre lyckas flippa
+modellen till `HAM`.
