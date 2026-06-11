@@ -49,7 +49,7 @@
                     {% if log.matched_patterns %}
                         <ul class="pattern-list">
                             {% for pattern in log.matched_patterns %}
-                                <li><strong>{{ pattern[0] }}</strong>: {{ pattern[1] }}</li>
+                                <li>{{ pattern }}</li>
                             {% endfor %}
                         </ul>
                     {% else %}

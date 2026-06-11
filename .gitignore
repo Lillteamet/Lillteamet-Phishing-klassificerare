@@ -4,3 +4,4 @@ __pycache__/
 *:Zone.Identifier
 *.pyc
 .DS_Store
+phishing_mailbox.db

@@ -82,13 +82,31 @@ class ScanLog(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
+        # Safely load and format matched_patterns for readability
+        formatted_patterns = []
+        try:
+            raw_patterns = json.loads(self.matched_patterns)
+            # Expecting raw_patterns to be a list of lists/tuples like [["pattern", "reason"]]
+            formatted_patterns = [f"{p[0]}: {p[1]}" for p in raw_patterns if isinstance(p, (list, tuple)) and len(p) == 2]
+        except (json.JSONDecodeError, TypeError):
+            formatted_patterns = ["Error parsing matched patterns."]
+
+        # Safely load assumptions and ensure they are strings
+        formatted_assumptions = []
+        try:
+            raw_assumptions = json.loads(self.assumptions)
+            # Expecting raw_assumptions to be a list of strings
+            formatted_assumptions = [str(a) for a in raw_assumptions if isinstance(a, str)]
+        except (json.JSONDecodeError, TypeError):
+            formatted_assumptions = ["Error parsing assumptions."]
+
         return {
             "id": self.id,
             "email_id": self.email_id,
             "agent_label": self.agent_label,
             "confidence": f"{self.confidence:.2%}",
-            "matched_patterns": json.loads(self.matched_patterns),
-            "assumptions": json.loads(self.assumptions),
+            "matched_patterns": formatted_patterns,
+            "assumptions": formatted_assumptions,
             "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S") if self.created_at else "N/A",
         }
 
@@ -196,7 +214,10 @@ def logs():
         "avg_confidence": f"{np.mean([log.confidence for log in logs]):.2%}" if logs else "0%",
     }
 
-    return render_template("logs.html", logs=logs, stats=stats)
+    # Convert raw database objects to dictionaries so JSON strings are parsed into lists
+    logs_data = [l.to_dict() for l in logs]
+
+    return render_template("logs.html", logs=logs_data, stats=stats)
 
 
 @app.route("/api/sync", methods=["POST"])

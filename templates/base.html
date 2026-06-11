@@ -509,9 +509,9 @@
 
                         if (log.matched_patterns && log.matched_patterns.length > 0) {
                             html += '<div class="patterns"><strong>Detected Patterns:</strong><ul class="pattern-list">';
-                            log.matched_patterns.forEach(function(p) {
-                                html += '<li><strong>' + p[0] + '</strong>: ' + p[1] + '</li>';
-                            });
+                                log.matched_patterns.forEach(function(p) {
+                                    html += '<li>' + p + '</li>';
+                                });
                             html += '</ul></div>';
                         } else {
                             html += '<p style="color: #6c757d; margin-top: 10px;">No suspicious patterns detected</p>';
