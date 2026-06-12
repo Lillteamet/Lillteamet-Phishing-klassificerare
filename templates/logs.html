@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Agent Logs - Phishing Email Classifier{% endblock %}
+
+{% block content %}
+<div class="stats-bar">
+    <div class="stat-card">
+        <h3>Total Scans</h3>
+        <div class="value">{{ stats.total_scans }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Phishing Detected</h3>
+        <div class="value" style="color: #ffc107;">{{ stats.phishing_detected }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>HAM Detected</h3>
+        <div class="value" style="color: #28a745;">{{ stats.ham_detected }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Avg Confidence</h3>
+        <div class="value">{{ stats.avg_confidence }}</div>
+    </div>
+</div>
+
+<div class="action-bar">
+    <button onclick="syncEmails(this)">SYNC AND SCAN MORE</button>
+    <button class="secondary" onclick="clearAll(this)">CLEAR ALL LOGS</button>
+</div>
+
+{% if logs %}
+    <div style="margin-top: 20px;">
+        {% for log in logs %}
+            <div class="log-entry">
+                <div style="margin-bottom: 10px;">
+                    <span class="log-label {% if log.agent_label == 'PHISHING' %}phishing{% else %}ham{% endif %}">
+                        {{ log.agent_label }}
+                    </span>
+                    <span style="color: #6c757d; font-size: 13px; margin-left: 10px;">
+                        {{ log.created_at }}
+                    </span>
+                </div>
+
+                <div class="log-confidence">
+                    Confidence: <strong>{{ log.confidence }}</strong>
+                </div>
+
+                <div class="patterns" style="margin-top: 12px;">
+                    <strong>📋 Detected Patterns:</strong>
+                    {% if log.matched_patterns %}
+                        <ul class="pattern-list">
+                            {% for pattern in log.matched_patterns %}
+                                <li>{{ pattern }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: #6c757d; margin-top: 5px;">No suspicious patterns detected</p>
+                    {% endif %}
+                </div>
+
+                <div class="assumptions" style="margin-top: 12px;">
+                    <strong>💡 Assumptions:</strong>
+                    <ul class="assumption-list">
+                        {% for assumption in log.assumptions %}
+                            <li>{{ assumption }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <h3>📋 No Logs Yet</h3>
+        <p>Click "Sync & Scan More" to generate emails and start logging agent activity.</p>
+    </div>
+{% endif %}
+{% endblock %}

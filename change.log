@@ -1,0 +1,269 @@
+CHANGELOG
+=========
+
+Version: 2026-06-11
+Summary: Added a Flask web application demo for email classification, inbox/junk management, and agent logging.
+
+What was added
+- `webapp.py`: new Flask application with inbox, junk folder, and `/inbox/logs` views.
+- `templates/`: HTML templates for inbox, junk, logs, and shared layout.
+- `run_webapp.sh` / `run_webapp.bat`: startup scripts for Linux/Mac and Windows.
+- `WEBAPP_README.md` and `WEBAPP_SETUP.md`: documentation for running the demo.
+
+What was changed
+- `requirements.txt`: added `Flask` and `Flask-SQLAlchemy`.
+- `generate_data.py`: added helper functions for random and adversarial email generation.
+- `agent.py` integration: the web app now scans generated emails with the existing phishing agent.
+
+Notes
+- The web app generates sample email traffic, classifies it with the agent, stores results in SQLite, and preserves false positive/false negative behavior for demo purposes.
+
+Version: 2026-06-11
+Summary: Consolidated adaptive evasion into `attack.py`.
+
+What was changed
+- `attack.py`: now supports `--mode baseline` and `--mode adaptive`.
+- Removed `attack_adaptive.py`; its adaptive rewrite demo now runs with `python attack.py --mode adaptive --email-file sample_email.txt`.
+- `README.md` and `SECURITY.md` were updated to use the consolidated command.
+
+Notes
+- `attack_training_generator.py` remains separate because it creates defensive retraining examples rather than only running a demo attack.
+
+Version: 2026-06-11
+Summary: Added enhancement oversampling during training so adversarial examples affect the model.
+
+What was changed
+- `train.py`: loads `Datasets/enhancements/` separately and oversamples those rows into the training split only.
+- Added `--enhancement-multiplier` with default `300`; use `--enhancement-multiplier 1` to disable this behavior.
+
+Why
+- Verified that enhancement examples were correctly labeled as phishing (`1`), but a few rows had too little influence compared with the full dataset.
+- Oversampling after train/test split gives curated enhancement examples more training weight without duplicating them into the evaluation split.
+
+Version: 2026-06-10
+Summary: Confirmed enhancement phishing labels and silenced expected metadata-file skip warnings.
+
+What was changed
+- `generate_data.py`: known skipped files such as `sources.txt` and `.md` notes are now ignored silently instead of printing `Skipping known problematic file` warnings.
+
+Verification
+- Files under `Datasets/enhancements/phishing/` are still labeled as phishing (`1`) by directory inference.
+- `Datasets/enhancements` currently loads as phishing-only enhancement data for the added adversarial examples.
+
+Version: 2026-06-09
+Summary: Added an adaptive evasion attack that succeeds against the current retrained model.
+
+What was added
+- `attack_adaptive.py`: separate controlled attack demo that tests larger phishing-style rewrites against `phishing_model.joblib` without modifying `attack.py` or writing dataset files.
+- `Datasets/enhancements/phishing/adaptive_evasion_success.txt`: phishing training example from the successful adaptive evasion attack.
+- `Datasets/enhancements/phishing/adaptive_evasion_delivery_preference.txt`: delivery-themed phishing variant missed by the current model.
+- `Datasets/enhancements/phishing/adaptive_evasion_access_review.txt`: access-review phishing variant missed by the current model.
+- `Datasets/enhancements/phishing/adaptive_evasion_support_followup.txt`: support-follow-up phishing variant missed by the current model.
+
+Result
+- `sample_email.txt` baseline: PHISHING 70.36%.
+- `attack_enhanced.py --email-file sample_email.txt`: resisted by the current model, final PHISHING 69.54%.
+- `attack_adaptive.py --email-file sample_email.txt`: evasion succeeded, final HAM 78.91%.
+- Verified retraining examples before handoff:
+  `adaptive_evasion_success.txt` -> HAM 78.91%,
+  `adaptive_evasion_delivery_preference.txt` -> HAM 76.82%,
+  `adaptive_evasion_access_review.txt` -> HAM 63.94%,
+  `adaptive_evasion_support_followup.txt` -> HAM 60.39%.
+
+Notes
+- The successful rewrite uses simulated content and example domains only.
+- The result should be handed to Data/Modell as evidence for further robustness work.
+
+Version: 2026-06-09
+Summary: Added a defensive adversarial training generator for hard phishing examples.
+
+What was added
+- `attack_training_generator.py`: separate tool that generates simulated evasion-style phishing emails, tests them against `phishing_model.joblib`, and saves the hardest examples under `Datasets/enhancements/phishing/`.
+
+Usage
+- Preview candidates without writing files: `python attack_training_generator.py --dry-run --candidates 40 --limit 8`
+- Save a small capped set for retraining: `python attack_training_generator.py --candidates 40 --limit 8`
+- Add a specific seed email: `python attack_training_generator.py --email-file sample_email.txt --dry-run`
+
+Notes
+- `attack.py` remains unchanged.
+- Generated examples are capped by `--limit` so the enhancement dataset is not filled with too many near-duplicate files.
+- Only anonymized or simulated phishing emails should be saved under `Datasets/enhancements/`.
+
+Version: 2026-06-09
+Summary: Fixed validation compatibility for the existing validation pipeline and moved helper modules into `scripts/`.
+
+What was added
+- `scripts/model_wrappers.py`: reusable `WrappedModel` class for streaming-trained model artifacts.
+- `scripts/save_wrapper.py`: optional wrapper CLI for converting dict-based model artifacts into wrapped objects.
+
+What was changed
+- `train.py`: imports `WrappedModel` from `scripts.model_wrappers` and saves streaming-trained models as wrapped objects.
+- `scripts/validate_model.py`: adds repository-root path injection so `phishing_model.joblib` can be loaded when the pipeline runs from `validate.sh`.
+- `scripts/save_wrapper.py`: also adds repository-root path injection so it can be executed from the repo root.
+- Moved `model_wrappers.py` and `save_wrapper.py` into `scripts/`.
+
+Notes
+- No dataset changes were made in this session; the work was purely validation compatibility and script organization.
+- `./scripts/validate.sh` now runs the existing validation pipeline successfully.
+
+Version: 2026-06-05
+Summary: Added enhancement-folder training support and raw `.txt` email ingestion for adversarial data.
+
+What was added
+- `generate_data.py` now supports `.txt` emails under labeled folders and treats text files in `enhancements/phishing` as phishing and `enhancements/false positive` as ham.
+- `train.py` now automatically includes `enhancements/` along with `Datasets/` when no explicit `--dataset-paths` are provided.
+- `scripts/validate_pipeline.py` now also auto-includes `enhancements/` so validation uses the same enhanced training data.
+
+What was changed
+- `generate_data.py`: added raw text file ingestion (`.txt`) and directory-based label inference from parent folder names.
+- `train.py`: updated default dataset handling to include `enhancements` automatically when present.
+- `scripts/validate_pipeline.py`: updated dataset path resolution so validation uses the same enhancement data as training.
+
+Usage
+- Place crafted adversarial examples in `enhancements/phishing/*.txt`.
+- Place false positives in `enhancements/false positive/*.txt`.
+- Retrain with `python train.py` and validate with `./scripts/validate.sh`.
+
+Version: 2026-06-04
+Summary: Added initial security analysis and an enhanced evasion attack demo for the phishing model.
+
+What was added
+- Completed `SECURITY.md` with the first evasion attack analysis.
+- Documented that `agent.py` classified `sample_email.txt` as PHISHING with 100.00% confidence.
+- Documented that `attack.py` did not successfully flip the current model from PHISHING to HAM.
+- Added `attack_enhanced.py`, a separate attack demo that keeps the original `attack.py` unchanged.
+- Documented that `attack_enhanced.py --email-file sample_email.txt` successfully flipped the model from PHISHING 100.00% to HAM 71.12%.
+
+Notes
+- The current model resisted the basic evasion attack using word substitutions and filler text.
+- The enhanced attack shows that stronger evasion can still manipulate the model decision.
+- The model team can use `attack_enhanced.py` as a robustness test after future retraining.
+- More advanced evasion tests are still recommended, such as larger rewrites, misspellings, URL obfuscation, and adversarial examples.
+
+
+Version: 2026-06-02
+Summary: Implemented dataset ingestion, a scanning agent, training CLI options, dataset folder support, and team workflow guidance.
+
+What was added
+- `agent.py` — Phishing scanning agent: loads the trained model, flags signature patterns, prints prediction + confidence, and provides short assumptions for analysts.
+- Dataset ingestion support in `generate_data.py` — loads CSV/TSV/JSON files, detects common text/label schemas (including `Email Text` / `Email Type`), and can recursively load `Datasets/`.
+- `train.py` CLI options — `--dataset-paths`, `--model-path`, `--test-size` (falls back to synthetic generator when no paths are given).
+- `sample_email.txt` — example email for quick `agent.py` testing.
+- `CHANGELOG.txt` (this file) — now includes per-role next steps for team coordination.
+
+What was changed
+- `generate_data.py`: added robust parsing, label normalization, and graceful skipping of unsupported files when scanning directories.
+- `train.py`: now accepts dataset paths and saves models to a configurable path.
+- `README.md`: instructions for training with `Datasets/` and using `agent.py` were added.
+
+Files touched
+- Added: `agent.py`, `sample_email.txt`, `CHANGELOG.txt`
+- Updated: `generate_data.py`, `train.py`, `README.md`
+
+Per-role next steps (concise)
+- Data (Sebastian / F-chas):
+	- You have trained the model locally. Keep the trained artifact `phishing_model.joblib` locally and share with others via a Release or shared storage.
+	- Verify dataset parsing for files under `Datasets/` and report any files that were skipped (warnings are emitted).
+	- If needed, prepare a cleaned CSV with `subject` + `body` or a `text,label` layout and place it under `Datasets/`.
+
+- Modell (Liam, Mert):
+	- Retrain locally with `python train.py --dataset-paths Datasets` or tweak hyperparameters in `train.py`.
+	- Run evaluation and report metrics (accuracy, precision, recall, F1) to the team.
+	- Optionally export and share a model artifact using the project's chosen distribution method.
+
+- Attack och Säkerhet (André):
+	- To run attacks and scans without retraining, request the `phishing_model.joblib` from Data (Sebastian).
+	- Run `python agent.py --email-file sample_email.txt` to test the scanner and `python attack.py` to run the evasion demo.
+
+- Presentation (Abdulghani):
+	- Use `agent.py` and the sample email to prepare a short demo. If needed, request the model artifact from Data.
+
+Model distribution guidance
+- Do NOT commit `phishing_model.joblib` into Git (it is ignored via `*.joblib` in `.gitignore`).
+- Recommended sharing options:
+	1) GitHub Release or shared cloud storage (preferred): upload `phishing_model.joblib` and add a download link + checksum in `README.md`.
+	2) Git LFS (alternative): track `phishing_model.joblib` with Git LFS and commit `.gitattributes` (team must install Git LFS).
+
+Quick commands
+```
+python train.py --dataset-paths Datasets
+python agent.py --text "Subject: Verify your account now\n\nClick here to update your billing information."
+python agent.py --email-file sample_email.txt
+python attack.py
+```
+
+Recommended immediate tasks
+1) Sebastian (Data): confirm the `Datasets/` folder loads cleanly and share the trained `phishing_model.joblib` via Release or shared link.
+2) Liam & Mert (Model): retrain or validate the model locally and report metrics.
+3) André (Attack): request the artifact and run `attack.py` to validate evasion scenarios.
+
+Contact / notes
+- If model files are large, prefer Release or cloud hosting. If the team prefers Git LFS, I can add a `.gitattributes` snippet and README instructions.
+
+
+Version: 2026-06-03
+Summary: Finalized expanded dataset retraining and validation, resolved Git LFS dataset issues, and consolidated changelog entries into a single update.
+
+What was added
+- Git LFS support and `git lfs pull` to fetch actual CSV data for `Datasets/Phishing Email Dataset`.
+- `text_combined` support in `generate_data.py` so `phishing_email.csv` can be parsed.
+- End-to-end validation workflow via `scripts/validate_pipeline.py`, `scripts/validate.sh`, and `validation_report.txt`.
+- Verified model artifact loading, `agent.py` scan behavior, and attack demo baseline.
+
+What was changed
+- `generate_data.py`: added `"text_combined"` to `TEXT_COLUMNS`.
+- `train.py`: clarified that `Datasets` is scanned recursively, so nested sources under `Datasets` should not be passed again as separate paths.
+- `CHANGELOG.txt`: merged multiple intermediate updates into one consolidated release note.
+
+Difficulties encountered
+- Git LFS pointer files hid actual CSV data until `git lfs pull` was run, so dataset ingestion initially skipped large files.
+- `phishing_email.csv` used a nonstandard `text_combined` field, requiring loader extension.
+- Passing both `Datasets` and nested `Datasets/phising-dataset` duplicated dataset rows; the correct recursive path is `Datasets` alone.
+- The expanded dataset includes JSON list files and required careful loader validation.
+
+Data difference
+- Original baseline snapshot: ~176,972 rows from the smaller dataset.
+- Expanded dataset loaded recursively from `Datasets`: 1,032,806 rows.
+- The current dataset is roughly 6x larger than the earlier baseline, giving the model much broader phishing and ham content.
+
+Training progression
+- Baseline training on the original smaller dataset: 141,577 samples, Accuracy 0.9831, F1 0.9839.
+- Expanded training on `Datasets` with recursive ingestion: total dataset rows 1,032,806, Train: 826,244, Test: 206,562.
+- Final metrics: Accuracy 0.8885, Precision 0.9207, Recall 0.8378, F1 0.8773.
+
+Validation result
+- `./scripts/validate.sh` completed successfully and wrote `validation_report.txt`.
+- `python scripts/validate_pipeline.py --dataset-paths Datasets --output validation_report.txt` confirmed the artifact loads, the agent scan works, and the attack demo failed to flip the current model.
+- Avoid passing `Datasets` and nested `Datasets/phising-dataset` together unless deduplication is added.
+
+Notes
+- The larger dataset improved coverage and reduced inflated metrics from the smaller baseline.
+- The attack demo failure is a useful baseline for future evasion testing.
+
+Next steps
+- Share the trained `phishing_model.joblib` with the team via GitHub Release or cloud storage.
+- Sebastian (Data) can verify the dataset parsing quality and report any remaining data issues.
+- André (Attack) can now request the artifact and run evasion experiments.
+
+Version: 2026-06-03
+Summary: Added the end-to-end validation pipeline and executable wrapper, confirmed `scripts/validate.sh` works, and updated team handoff guidance.
+
+What was added
+- `scripts/validate_pipeline.py` — full validation workflow that retrains the model, summarizes the dataset, validates the saved model, runs the scan agent, demos the attack, and writes `validation_report.txt`.
+- `scripts/validate.sh` — executable convenience wrapper for `python scripts/validate_pipeline.py --output validation_report.txt`.
+- `validation_report.txt` — generated by the validation pipeline and overwritten each run.
+
+What was changed
+- `scripts/validate.sh`: made executable and verified direct execution from the repo root.
+- `CHANGELOG.txt`: updated the team next steps to include the new validation workflow and handoff process.
+
+Per-role next steps
+- Modell (Liam, Mert):
+	- Run `./scripts/validate.sh` to generate and review `validation_report.txt`.
+	- Confirm the current model artifact is valid, compare metrics, and note whether retraining or tuning is needed.
+	- Share the validated model status with André so he can run attack/evasion tests against the same artifact.
+- Attack och Säkerhet (André):
+	- Request the current `phishing_model.joblib` from the model team.
+	- Run `./scripts/validate.sh` or `python scripts/validate_pipeline.py --output validation_report.txt` to verify the pipeline completes successfully before proceeding with `attack.py`.
+	- Use the validation report as the baseline for evasion testing.

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Junk - Phishing Email Classifier{% endblock %}
+
+{% block content %}
+<div class="stats-bar">
+    <div class="stat-card">
+        <h3>Total in Junk</h3>
+        <div class="value">{{ stats.total_junk }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Correctly Classified</h3>
+        <div class="value">{{ stats.correct_classifications }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>False Negatives</h3>
+        <div class="value" style="color: #ffc107;">{{ stats.false_negatives }}</div>
+    </div>
+</div>
+
+<div class="action-bar">
+    <button onclick="syncEmails(this)">SYNC INCOMING EMAILS</button>
+    <button class="secondary" onclick="clearAll(this)">CLEAR ALL</button>
+</div>
+
+{% if emails %}
+    <div class="email-list">
+        {% for email in emails %}
+            <div class="email-item phishing" onclick="openEmailModal('{{ email.id }}')">
+                <div class="email-header">
+                    <div class="email-subject">{{ email.subject }}</div>
+                    <div>
+                        <span class="badge phishing">{{ email.agent_prediction }}</span>
+                        {% if email.is_correct %}
+                            <span class="correct-check">✓</span>
+                        {% else %}
+                            <span class="incorrect-cross">✗</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="confidence">
+                    Confidence: {{ email.agent_confidence }} | 
+                    {% if email.email_type == 'PHISHING' %}
+                        Real: PHISHING
+                    {% else %}
+                        Real: HAM <span style="color: #ffc107;">(False Negative)</span>
+                    {% endif %}
+                </div>
+                <div class="preview">{{ email.body[:100] }}...</div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <h3>✨ Junk Folder is Empty</h3>
+        <p>Click "Sync Incoming Emails" to generate and classify sample emails.</p>
+    </div>
+{% endif %}
+{% endblock %}
