@@ -257,7 +257,7 @@ Datasets/sources.txt
 
 | Roll            | Person                             | Ansvar                                        |
 | --------------- | ---------------------------------- | --------------------------------------------- |
-| 📊 Data         | Sebastian (Fchas)                  | Dataset, feature engineering och datakvalitet |
+| 📊 Data         | Sebastian (Fchas)                  | Dataset, feature engineering, datakvalitet och projekt leadning |
 | 🧠 Modell       | Liam (liam-baltze), Mert (MA-chas) | Modellträning, optimering och utvärdering     |
 | ⚔️ Säkerhet     | André (andreedvardsson)            | Adversarial testing och säkerhetsanalys       |
 | 🎤 Presentation | Abdulghani (abbe-max)              | Demo, dokumentation och presentation          |
@@ -272,7 +272,7 @@ Datasets/sources.txt
 | `WEBAPP_README.md` | Webbappens funktioner          |
 | `WEBAPP_SETUP.md`  | Installation och konfiguration |
 | `SECURITY.md`      | Säkerhetsanalys                |
-| `CHANGELOG.txt`    | Versionshistorik               |
+| `change.log`       | Versionshistorik               |
 
 ---
 
@@ -291,5 +291,3 @@ SECURITY.md
 Projektet utvecklades inom ramen för utbildning och forskning inom cybersäkerhet, maskininlärning och phishing-detektering.
 
 ---
-
-⭐ Om projektet hjälper dig, överväg gärna att ge repot en stjärna på GitHub.
