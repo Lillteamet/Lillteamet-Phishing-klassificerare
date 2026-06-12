@@ -1,171 +1,295 @@
 # 🛡️ Lillteamet Phishing-klassificerare
 
-![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
-![ML](https://img.shields.io/badge/ML-NLP%20Classifier-green.svg)
-![Security](https://img.shields.io/badge/security-phishing%20detection-red.svg)
-![Status](https://img.shields.io/badge/status-active-success.svg)
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![Machine Learning](https://img.shields.io/badge/Machine%20Learning-NLP-green.svg)
+![Cybersecurity](https://img.shields.io/badge/Cybersecurity-Phishing%20Detection-red.svg)
+![Status](https://img.shields.io/badge/Status-Active-success.svg)
+
+En komplett plattform för **phishing-detektering, adversarial testing och interaktiva demonstrationer**.
+
+Projektet kombinerar NLP-baserad maskininlärning, säkerhetstestning och en webbaserad demoapplikation för att identifiera phishing-mejl och analysera hur robust modellen är mot olika angreppsstrategier.
 
 ---
 
-## 📌 Projektöversikt
+## ✨ Funktioner
 
-Detta projekt är en **NLP-baserad phishing-klassificerare** som identifierar skadliga e-postmeddelanden och URL:er.
-
-Modellen analyserar:
-- ✉️ E-postinnehåll (brödtext & rubriker)
-- 🔗 URL-strukturer och domäner
-- 🧾 Header-information
-- 👤 Avsändarbeteende
-
-Målet är att bygga en robust och utbyggbar säkerhetsmodell för att upptäcka phishing i textbaserad kommunikation.
-
----
-
-## 📊 Dataset
-
-Dataset används från flera källor listade i `sources.txt`:
-
-🔗 https://github.com/Lillteamet/Lillteamet-Phishing-klassificerare/blob/test/Datasets/sources.txt  
+* 🧠 Träning av phishing-detektionsmodell
+* 📧 Klassificering av inkommande e-post
+* ⚔️ Adversarial testing och säkerhetsutvärdering
+* 🌐 Interaktiv webbapplikation
+* 📬 Simulerad mailbox
+* 📊 Modellvalidering och rapportering
+* 🔒 Säkerhetsdokumentation
+* 🎓 Anpassad för demonstrationer och utbildning
 
 ---
 
-## 🧠 Ursprungligt projekt
+## 🚀 Quick Start
 
-Bygger vidare på originalprojektet:
+### Installation
 
-🔗 https://github.com/r87-e/ais-grupp-phishing  
+```bash
+git clone https://github.com/Lillteamet/Lillteamet-Phishing-klassificerare.git
+cd Lillteamet-Phishing-klassificerare
+
+python3 -m venv venv
+source venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+### Träna modellen
+
+```bash
+python train.py --dataset-path Datasets
+```
+
+### Testa klassificering
+
+```bash
+python agent.py --email-file sample_email.txt
+```
+
+### Kör attacksimulering
+
+```bash
+python attack.py --mode adaptive --email-file sample_email.txt
+```
+
+### Starta webbappen
+
+Linux/macOS:
+
+```bash
+./run_webapp.sh
+```
+
+Windows:
+
+```bat
+run_webapp.bat
+```
+
+Alternativt:
+
+```bash
+python webapp.py
+```
+
+Öppna sedan:
+
+```text
+http://localhost:5000
+```
 
 ---
 
-## 🌐 Presentation
+## 🏗️ Systemarkitektur
 
-📽️ https://abbe-max.github.io/presentation-n-tfiske-/  
+```text
+Datasets
+    │
+    ▼
+train.py
+    │
+    ▼
+phishing_model.joblib
+    │
+    ├────────► agent.py
+    │              │
+    │              ▼
+    │      Phishing / Ham
+    │
+    ├────────► attack.py
+    │
+    └────────► webapp.py
+                    │
+                    ▼
+            Demo-Webbgränssnitt
+```
 
 ---
 
-## 🏗️ Arkitektur
+## 🌐 Webbapplikation
 
-Projektet består av tre huvudkomponenter:
+Projektet innehåller en komplett webbapplikation för att demonstrera phishing-detektering i en realistisk miljö.
 
-| Modul | Fil | Beskrivning |
-|------|-----|-------------|
-| 🧠 Träning | `train.py` | Tränar NLP-modellen |
-| ⚔️ Attack | `attack.py` | Simulerar adversariala attacker |
-| 🤖 Agent | `agent.py` | Klassificerar nya mail |
+### Funktioner
+
+* 📥 Inkorg för legitima meddelanden
+* 🚨 Junk/Spam-vy för phishing-mejl
+* 📜 Loggsystem för klassificeringar
+* 🤖 Realtidsanalys via ML-modellen
+* 🗄️ SQLite-baserad lagring
+* 🎯 Perfekt för live-demos och presentationer
+
+### Webbgränssnitt
+
+| Sida     | Beskrivning                    |
+| -------- | ------------------------------ |
+| 📥 Inbox | Legitima e-postmeddelanden     |
+| 🚨 Junk  | Identifierade phishing-mejl    |
+| 📜 Logs  | Historik över klassificeringar |
+
+Databas:
+
+```text
+instance/phishing_mailbox.db
+```
+
+---
+
+## 🧠 Modellträning
+
+`train.py` ansvarar för:
+
+* Datainläsning
+* Datarensning
+* NLP-preprocessing
+* Feature engineering
+* Modellträning
+* Modellutvärdering
+* Export av tränad modell
+
+Genererad modell:
+
+```text
+phishing_model.joblib
+```
+
+---
+
+## ⚔️ Säkerhetstestning
+
+Projektet innehåller flera verktyg för adversarial testing.
+
+### attack.py
+
+Grundläggande attacker mot modellen.
+
+### attack_enhanced.py
+
+Utökade attacker för att analysera modellens robusthet.
+
+### attack_training_generator.py
+
+Genererar ytterligare träningsdata för att förbättra modellens motståndskraft.
+
+Målet är att förstå hur phishing-meddelanden kan modifieras för att kringgå ML-baserade detektionssystem.
+
+---
+
+## 📊 Validering och utvärdering
+
+Valideringsverktyg finns under:
+
+```text
+scripts/
+```
+
+Exempel:
+
+```bash
+python scripts/validate_model.py
+```
+
+eller
+
+```bash
+python scripts/validate_pipeline.py
+```
+
+Rapporter genereras i:
+
+```text
+validation_report.txt
+```
+
+---
+
+## 📚 Dataset
+
+Projektet använder flera offentliga phishing-dataset:
+
+* CEAS 2008
+* Enron
+* Ling
+* Nazario
+* Nigerian Fraud
+* SpamAssassin
+* Phishing & Legitimate Emails Dataset 2026
+
+Samtliga källor dokumenteras i:
+
+```text
+Datasets/sources.txt
+```
 
 ---
 
 ## 📁 Projektstruktur
 
-```
+```text
 .
-├── train.py          # Modellträning
-├── attack.py         # Adversarial testing
-├── agent.py          # Inference/klassificering
+├── train.py
+├── agent.py
+├── attack.py
+├── attack_enhanced.py
+├── attack_training_generator.py
+├── generate_data.py
+├── webapp.py
+├── phishing_model.joblib
 ├── requirements.txt
+├── SECURITY.md
+├── WEBAPP_README.md
+├── WEBAPP_SETUP.md
+│
 ├── Datasets/
-│   └── sources.txt
+├── templates/
+├── scripts/
+├── instance/
 └── README.md
 ```
 
 ---
 
-## 🧠 train.py – Modellträning
-
-Ansvar:
-- 📥 Laddar och preprocessar dataset
-- 🔍 Extraherar NLP-features (text, URL, metadata)
-- ⚙️ Tränar klassificeringsmodell
-- 📈 Utvärderar performance (accuracy, precision, recall, F1)
-
----
-
-## ⚔️ attack.py – Säkerhetstestning
-
-Simulerar hur modellen kan angripas:
-
-- 🧪 Genererar adversarial emails
-- 🎭 Modifierar phishing-strukturer
-- 🧠 Testar robusthet mot manipulation
-- 📊 Mäter attack-success rate
-
-Exempel:
-```bash
-python attack.py --mode adaptive --email-file sample_email.txt
-```
-
----
-
-## 🤖 agent.py – Produktion / inference
-
-Används för att klassificera nya mail:
-
-- 📩 Tar emot email-input
-- 🧠 Kör modellen
-- 🚨 Returnerar: `Phishing` eller `Ham`
-
-Exempel:
-```bash
-python agent.py --email-file sample_email.txt
-```
-
----
-
-## 🚀 Snabbstart
-
-```bash
-# Skapa miljö
-python3 -m venv venv
-source venv/bin/activate
-
-# Installera dependencies
-pip install -r requirements.txt
-
-# Träna modellen
-python train.py --dataset-path Datasets
-
-# Testa attacker
-python attack.py --mode adaptive --email-file sample_email.txt
-
-# Kör klassificering
-python agent.py --email-file sample_email.txt
-```
-
----
-
-## 🎯 Projektmål
-
-- 🧠 Bygga en robust phishing-detektor
-- 🛡️ Förstå adversarial ML-attacker
-- 🔬 Förbättra NLP-baserad feature engineering
-- 📉 Minska false positives/negatives
-- ⚙️ Skapa en enkel inference-agent
-
----
-
 ## 👥 Team
 
-| Roll | Person | Ansvar |
-|------|--------|--------|
-| 📊 Data | Sebastian (Fchas) | Dataset, features & projekt ledning |
-| 🧠 Modell | Liam (liam-baltze), Mert (MA-chas) | Modelloptimering |
-| ⚔️ Attack & säkerhet | André (andreedvardsson) | Adversarial testing |
-| 🎤 Presentation | Abdulghani (abbe-max) | Demo & slides |
+| Roll            | Person                             | Ansvar                                        |
+| --------------- | ---------------------------------- | --------------------------------------------- |
+| 📊 Data         | Sebastian (Fchas)                  | Dataset, feature engineering och datakvalitet |
+| 🧠 Modell       | Liam (liam-baltze), Mert (MA-chas) | Modellträning, optimering och utvärdering     |
+| ⚔️ Säkerhet     | André (andreedvardsson)            | Adversarial testing och säkerhetsanalys       |
+| 🎤 Presentation | Abdulghani (abbe-max)              | Demo, dokumentation och presentation          |
 
 ---
 
-## 🔮 Möjliga förbättringar
+## 📖 Dokumentation
 
-- 🤖 Transformer-modeller (BERT, RoBERTa)
-- 🛡️ Adversarial training
-- 🔗 Bättre URL-detektion
-- 🌐 API för realtidsklassificering
-- 📡 Logging & monitoring
+| Dokument           | Beskrivning                    |
+| ------------------ | ------------------------------ |
+| `README.md`        | Projektöversikt                |
+| `WEBAPP_README.md` | Webbappens funktioner          |
+| `WEBAPP_SETUP.md`  | Installation och konfiguration |
+| `SECURITY.md`      | Säkerhetsanalys                |
+| `CHANGELOG.txt`    | Versionshistorik               |
+
+---
+
+## 🔒 Säkerhet
+
+Säkerhetsrelaterad information och attackanalys finns dokumenterad i:
+
+```text
+SECURITY.md
+```
 
 ---
 
 ## 📜 Licens
 
-Projektet är en del av utbildningsarbete och bygger på open-source inspiration.
+Projektet utvecklades inom ramen för utbildning och forskning inom cybersäkerhet, maskininlärning och phishing-detektering.
 
 ---
+
+⭐ Om projektet hjälper dig, överväg gärna att ge repot en stjärna på GitHub.
